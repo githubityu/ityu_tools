@@ -1,5 +1,8 @@
 import 'package:ityu_tools/local/local_exports.dart';
 
+const int cPageStart = 1;
+const int cPageSize = 10;
+
 class ResponseBodyMt {
   String? code;
   String? msg;
@@ -28,8 +31,8 @@ class ResponseBodyMt {
 
 class PageModel {
   PageModel(
-      {this.page = Constants.PAGE_START,
-      this.pageSize = Constants.PAGE_SIZE,
+      {this.page = cPageStart,
+      this.pageSize = cPageSize,
       this.hasMore = true});
 
   int page;
@@ -40,7 +43,7 @@ class PageModel {
     return PageModel(pageSize: pageSize, page: page);
   }
 
-  PageModel resetPage({int oldPage = Constants.PAGE_START}) {
+  PageModel resetPage({int oldPage = cPageStart}) {
     page = oldPage;
     return this;
   }
@@ -65,7 +68,7 @@ class HasMoreListData<T> {
   }
 }
 
-class ResponseBodyRpc{
+class ResponseBodyRpc {
   String? jsonrpc;
   dynamic result;
   dynamic error;

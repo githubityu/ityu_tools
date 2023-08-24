@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:ityu_tools/util/extension/build_context_ext.dart';
 import 'package:ityu_tools/util/extension/log_extensions.dart';
@@ -57,71 +58,78 @@ class DialogUtils {
   }
 
   static Future<bool?> showTipsDialog(
-      BuildContext context, {
-        String? content,
-        Widget? contentWidget,
-        String left = 'Cancel',
-        String right = 'Confirm',
-        bool singleBtn = false,
-      }) async {
-    return await showDialog(
-        context: context,
-        barrierDismissible: true,
-        builder: (context) {
-          return SimpleDialog(
-            shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-            backgroundColor: Colors.white,
-            elevation: 0,
-            title: contentWidget ??
-                Text(
-                  content??'',
-                  style: const TextStyle(fontSize: 16),
-                ),
+    BuildContext context, {
+    String? content,
+    Widget? contentWidget,
+    String left = 'Cancel',
+    String right = 'Confirm',
+    bool singleBtn = false,
+  }) async {
+    return SmartDialog.show(builder: (BuildContext context) {
+      return SimpleDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        title: contentWidget ??
+            Text(
+              content ?? '',
+              style: const TextStyle(fontSize: 16),
+            ),
+        children: [
+          Row(
             children: [
-              Row(
-                children: [
-                  if (!singleBtn)
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                              border: Border.all(color: context.theme.primaryColor),
-                              borderRadius: BorderRadius.circular(5)),
-                          child: SimpleDialogOption(
-                              child: Text(
-                                left,
-                                style:  TextStyle(color: context.theme.primaryColor),
-                                textAlign: TextAlign.center,
-                              ),
-                              onPressed: () =>
-                                  Navigator.of(context).pop(false)),
-                        ),
-                      ),
-                    ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                            color: context.theme.primaryColor,
-                            borderRadius: BorderRadius.circular(5)),
-                        child: SimpleDialogOption(
-                            child: Text(
-                              right,
-                              style: const TextStyle(color: Colors.white),
-                              textAlign: TextAlign.center,
-                            ),
-                            onPressed: () => Navigator.of(context).pop(true)),
-                      ),
+              if (!singleBtn)
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                          border: Border.all(color: context.theme.primaryColor),
+                          borderRadius: BorderRadius.circular(5)),
+                      child: SimpleDialogOption(
+                          child: Text(
+                            left,
+                            style: TextStyle(color: context.theme.primaryColor),
+                            textAlign: TextAlign.center,
+                          ),
+                          onPressed: () => SmartDialog.dismiss(result: false)),
                     ),
                   ),
-                ],
-              )
+                ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                        color: context.theme.primaryColor,
+                        borderRadius: BorderRadius.circular(5)),
+                    child: SimpleDialogOption(
+                        child: Text(
+                          right,
+                          style: const TextStyle(color: Colors.white),
+                          textAlign: TextAlign.center,
+                        ),
+                        onPressed: () => SmartDialog.dismiss(result: true)),
+                  ),
+                ),
+              ),
             ],
-          );
-        });
+          )
+        ],
+      );
+    });
+  }
+
+  static Future showCommonDialog(BuildContext context,
+      {required Widget child, bool isClose = false}) async {
+    return await SmartDialog.show(builder: (context) {
+      return SimpleDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        children: [child],
+      );
+    });
   }
 
   static showBottomList(BuildContext context,
@@ -249,6 +257,22 @@ class DialogUtils {
                 ),
               ],
             ),
+          );
+        });
+  }
+
+  static showBottomWidget(BuildContext context, Widget child,
+      {double height = 200, bool barrierDismissible = true}) async {
+    return await showCupertinoModalPopup(
+        context: context,
+        barrierDismissible: barrierDismissible,
+        builder: (BuildContext context) {
+          return Container(
+            decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(10))),
+            constraints: BoxConstraints.loose(Size.fromHeight(height)),
+            child: child,
           );
         });
   }

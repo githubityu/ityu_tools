@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 
-
 const HTTP_NOT_VERIFIED = '100002';
 
 enum ErrorType {

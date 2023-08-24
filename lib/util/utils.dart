@@ -1,13 +1,16 @@
+import 'dart:io';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:ityu_tools/exports.dart';
 import 'package:path/path.dart' as path;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:quiver/strings.dart';
-
-import '../widget/export_widget.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 final inputFormatters = [
   FilteringTextInputFormatter.allow(RegExp('[0-9a-zA-Z]'))
@@ -21,13 +24,18 @@ final inputEmailFormatters = [
 ];
 
 class Utils {
-  static void showToast(String content,
-      {backgroundColor = Colors.white, textColor = Colors.black}) {
-    SmartDialog.showToast(content, alignment: Alignment.bottomCenter);
+  static void showToast(String content) {
+    SmartDialog.showToast(content,
+        alignment: Alignment.center, displayType: SmartToastType.last);
   }
 
-  static void showErrorToast(String content, List<String> errCodes,
-      String errCode) {
+  static List<Permission> permissionsForCamera = [
+    Permission.camera,
+    Platform.isAndroid ? Permission.storage : Permission.photos
+  ];
+
+
+  static void showErrorToast(String content, List<int> errCodes, int errCode) {
     if (!errCodes.contains(errCode)) {
       showToast(content);
     }
@@ -61,8 +69,8 @@ class Utils {
     );
   }
 
-  static List<DateTime> getTimesByLong(String startTime, String endTime,
-      int hours, int minutes,
+  static List<DateTime> getTimesByLong(
+      String startTime, String endTime, int hours, int minutes,
       {bool is24Hours = true}) {
     var dt = intl.DateFormat.Hm().parse(startTime);
     var dt2 = intl.DateFormat.Hm().parse(endTime);
@@ -70,9 +78,7 @@ class Utils {
       dt = dt.add(const Duration(hours: 12));
       dt2 = dt2.add(const Duration(hours: 12));
     }
-    final nums = (dt2
-        .difference(dt)
-        .inMinutes - 60 * hours) ~/ minutes;
+    final nums = (dt2.difference(dt).inMinutes - 60 * hours) ~/ minutes;
     List<DateTime> items = [];
     for (int i = 0; i <= nums; i++) {
       final newDt = dt.add(Duration(minutes: minutes * i));
@@ -137,14 +143,13 @@ class Utils {
     }
   }
 
-
   /// date = '${date.substring(0, 8)}T${date.substring(8)}';
   ///"20230405151212"
   static int getSeconds(String? dt, {String? newPattern}) {
     if (isBlank(dt)) return 0;
     return (newPattern == null
-        ? DateTime.parse(dt!)
-        : intl.DateFormat(newPattern).parse(dt!))
+            ? DateTime.parse(dt!)
+            : intl.DateFormat(newPattern).parse(dt!))
         .difference(DateTime.now())
         .inSeconds;
   }
@@ -163,8 +168,8 @@ class Utils {
     int minute =
         (millisUntilFinished - hour * 60 * 60 * number) ~/ (60 * number);
     int second = (millisUntilFinished -
-        hour * 60 * 60 * number -
-        minute * 60 * number) ~/
+            hour * 60 * 60 * number -
+            minute * 60 * number) ~/
         number;
     if (second >= 60) {
       second %= 60;
@@ -231,5 +236,54 @@ class Utils {
     }
 
     return time;
+  }
+
+  static Future<ResponseBodyMt> postFormData3Web(
+      Dio dio, List<XFile> files) async {
+    const extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final headers = <String, dynamic>{};
+    final data = FormData();
+
+    for (int i = 0; i < files.length; i++) {
+      final bytes = await files[i].readAsBytes();
+      final entry = MapEntry(
+          'file', MultipartFile.fromBytes(bytes, filename: files[i].name));
+      data.files.add(entry);
+    }
+    final result = await dio.fetch<Map<String, dynamic>>(
+        _setStreamType2<ResponseBodyMt>(Options(
+                method: 'POST',
+                headers: headers,
+                extra: extra,
+                contentType: 'multipart/form-data')
+            .compose(dio.options, 'comm/uploadFile',
+                queryParameters: queryParameters, data: data)
+            .copyWith(baseUrl: dio.options.baseUrl)));
+    final value = ResponseBodyMt.fromJson(result.data!);
+    return value;
+  }
+
+  static RequestOptions _setStreamType2<T>(RequestOptions requestOptions) {
+    if (T != dynamic &&
+        !(requestOptions.responseType == ResponseType.bytes ||
+            requestOptions.responseType == ResponseType.stream)) {
+      if (T == String) {
+        requestOptions.responseType = ResponseType.plain;
+      } else {
+        requestOptions.responseType = ResponseType.json;
+      }
+    }
+    return requestOptions;
+  }
+
+  static Future callUri(Uri uri, {String errMsg = 'not call phone'}) {
+    return canLaunchUrl(uri).then((value) {
+      if (value) {
+        launchUrl(uri);
+      } else {
+        showToast(errMsg);
+      }
+    });
   }
 }

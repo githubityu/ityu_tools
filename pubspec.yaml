@@ -38,6 +38,7 @@ dependencies:
   flutter_image_compress: ^2.0.3
   webview_flutter: ^4.0.7
   device_info_plus: ^9.0.2
+  url_launcher: ^6.1.10
 
 dev_dependencies:
   flutter_test:

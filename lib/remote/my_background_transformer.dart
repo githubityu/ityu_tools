@@ -13,7 +13,7 @@ class MyBackgroundTransformer extends SyncTransformer {
 }
 
 final _myJsonCodec = JsonCodec.withReviver((dynamic key, dynamic value) {
-  if (value is int || value is double) return '$value';
+  // if (value is int || value is double) return '$value';
   return value;
 });
 
