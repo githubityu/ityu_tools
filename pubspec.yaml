@@ -31,14 +31,13 @@ dependencies:
   flutter_smart_dialog: ^4.8.2+5
   #工具
   quiver: ^3.2.1
-
+  url_launcher: ^6.1.10
   #选择图片
   image_picker: ^0.8.7+5
   #侧滑
   flutter_image_compress: ^2.0.3
   webview_flutter: ^4.0.7
   device_info_plus: ^9.0.2
-  url_launcher: ^6.1.10
 
 dev_dependencies:
   flutter_test:

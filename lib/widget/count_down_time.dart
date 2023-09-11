@@ -28,6 +28,7 @@ class CountDownTime extends StatelessWidget {
         builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
           if (snapshot.isDone) {
             if (callback != null) {
+              callback!.call();
               return const Text('');
             }
           }

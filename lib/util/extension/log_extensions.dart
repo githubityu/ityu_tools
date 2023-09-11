@@ -12,7 +12,9 @@ extension ObjectExt on Object? {
   }
 
   void devLog() {
-    dev.log(toString());
+    if (kDebugMode) {
+      dev.log(toString());
+    }
   }
 }
 

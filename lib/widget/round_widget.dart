@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import 'cache_image.dart';
+import 'package:ityu_tools/exports.dart';
 
 class RoundWidget extends StatelessWidget {
   const RoundWidget({
@@ -85,6 +84,11 @@ class CircleImage extends StatelessWidget {
           errorWidget: CircleAvatar(
             backgroundColor: Colors.grey.withOpacity(0.3),
             radius: radius,
+            child: Icon(
+              Icons.person,
+              color: context.colorScheme.primary,
+              size: radius * 1.5,
+            ),
           ),
           path: path,
           isCircle: true),
