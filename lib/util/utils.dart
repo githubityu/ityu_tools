@@ -34,7 +34,6 @@ class Utils {
     Platform.isAndroid ? Permission.storage : Permission.photos
   ];
 
-
   static void showErrorToast(String content, List<int> errCodes, int errCode) {
     if (!errCodes.contains(errCode)) {
       showToast(content);
@@ -275,6 +274,12 @@ class Utils {
       }
     }
     return requestOptions;
+  }
+
+  static ({Offset offset, Size size}) getOffsetAndSize(
+      BuildContext targetContext) {
+    final renderBox = targetContext.findRenderObject() as RenderBox;
+    return (offset: renderBox.localToGlobal(Offset.zero), size: renderBox.size);
   }
 
   static Future callUri(Uri uri, {String errMsg = 'not call phone'}) {

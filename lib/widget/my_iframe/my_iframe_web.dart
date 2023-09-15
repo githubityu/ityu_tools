@@ -1,13 +1,13 @@
 import 'dart:html';
 import 'dart:ui' as ui;
 
-
-import 'package:ityu_tools/util/extension/log_extensions.dart';
 import 'package:flutter/material.dart';
 
 class MyIFrame extends StatefulWidget {
   final String url;
-  const MyIFrame(this.url,{Key? key}) : super(key: key);
+  final Function(double, dynamic)? heightFunc;
+
+  const MyIFrame(this.url, {Key? key, this.heightFunc}) : super(key: key);
 
   @override
   State<MyIFrame> createState() => _MyIFrameState();
@@ -15,6 +15,7 @@ class MyIFrame extends StatefulWidget {
 
 class _MyIFrameState extends State<MyIFrame> {
   final element = IFrameElement();
+
   @override
   void initState() {
     super.initState();
@@ -25,7 +26,6 @@ class _MyIFrameState extends State<MyIFrame> {
       'my-iframe-view${widget.url}',
       (int viewId) => element,
     );
-    widget.url.log('MyIFrame');
   }
 
   @override
@@ -33,12 +33,15 @@ class _MyIFrameState extends State<MyIFrame> {
     element.src = widget.url;
     super.didUpdateWidget(oldWidget);
   }
+
   @override
   Widget build(BuildContext context) {
-    return   LimitedBox(
+    return LimitedBox(
       maxWidth: 300,
       maxHeight: 500,
-      child: HtmlElementView(viewType: 'my-iframe-view${widget.url}',),
+      child: HtmlElementView(
+        viewType: 'my-iframe-view${widget.url}',
+      ),
     );
   }
 }

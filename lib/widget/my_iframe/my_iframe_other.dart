@@ -8,7 +8,7 @@ import 'package:webview_flutter/webview_flutter.dart';
 ///EagerGestureRecognizer 急切拿到事件，webview拿到事件
 class MyIFrame extends StatefulWidget {
   final String url;
-  final Function(double, WebViewController)? heightFunc;
+  final Function(double, dynamic)? heightFunc;
 
   const MyIFrame(this.url, {Key? key, this.heightFunc}) : super(key: key);
 
@@ -72,9 +72,9 @@ class _MyIFrameState extends State<MyIFrame> {
           builder: (BuildContext context, bool value, Widget? child) {
             return isShowLoading.value
                 ? const Center(
-                    child: CircularProgressIndicator(
-                    color: Colors.white,
-                  ))
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                ))
                 : const SizedBox.shrink();
           },
         )

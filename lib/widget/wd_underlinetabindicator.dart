@@ -4,11 +4,10 @@ class WDUnderlineTabIndicator extends Decoration {
   /// Create an underline style selected tab indicator.
   ///
   /// The [borderSide] and [insets] arguments must not be null.
-  const WDUnderlineTabIndicator(
-      {this.borderSide = const BorderSide(width: 2.0, color: Colors.white),
-        this.insets = EdgeInsets.zero,
-        this.customWidth,
-        this.borderRadius})
+  const WDUnderlineTabIndicator({required this.borderSide,
+    this.insets = EdgeInsets.zero,
+    this.customWidth,
+    this.borderRadius})
       : assert(borderSide != null),
         assert(insets != null);
 

@@ -63,17 +63,6 @@ extension FixAutoLines on String {
   }
 }
 
-extension IterationWithIndex<T> on Iterable<T> {
-  Iterable<E> mapWithIndexAndCount<E>(
-    E Function(int index, int count, T value) f,
-  ) =>
-      Iterable.generate(length, (i) => f(i, length, elementAt(i)));
-
-  Iterable<E> mapWithIndex<E>(
-    E Function(int index, T value) f,
-  ) =>
-      Iterable.generate(length, (i) => f(i, elementAt(i)));
-}
 
 extension Unwrap<T> on Future<T?> {
   Future<T> unwrap() => then(
