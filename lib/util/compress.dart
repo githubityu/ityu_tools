@@ -6,7 +6,7 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 class MtCompress {
   ///压缩图片
   static Future<File?> image(File file,
-      {int minWidth = 1920, int minHeight = 1080}) async {
+      {int minWidth = 720, int minHeight = 1080}) async {
     var f = await FlutterImageCompress.compressAndGetFile(
       file.path,
       '${file.path}_temp.png',

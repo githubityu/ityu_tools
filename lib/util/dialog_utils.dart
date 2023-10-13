@@ -8,7 +8,7 @@ import 'package:ityu_tools/util/extension/object_ext.dart';
 
 class DialogUtils {
   static Future<List<XFile>?> showPicDialog(
-      BuildContext context, ImagePicker _picker,
+      BuildContext context, ImagePicker picker,
       {bool isMul = false}) async {
     return await showCupertinoModalPopup<List<XFile>?>(
         context: context,
@@ -27,13 +27,13 @@ class DialogUtils {
                 CupertinoActionSheetAction(
                   onPressed: () async {
                     if (isMul) {
-                      final List<XFile> file = await _picker.pickMultiImage();
+                      final List<XFile> file = await picker.pickMultiImage();
                       file.let((t) {
                         Navigator.pop(context, file);
                       });
                     } else {
                       final XFile? file =
-                          await _picker.pickImage(source: ImageSource.gallery);
+                          await picker.pickImage(source: ImageSource.gallery);
                       file?.let((t) {
                         Navigator.pop(context, [t]);
                       });
@@ -44,7 +44,7 @@ class DialogUtils {
                 CupertinoActionSheetAction(
                   onPressed: () async {
                     final XFile? file =
-                        await _picker.pickImage(source: ImageSource.camera);
+                        await picker.pickImage(source: ImageSource.camera);
                     file?.let((t) {
                       Navigator.pop(context, [t]);
                     });

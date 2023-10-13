@@ -1,10 +1,11 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:ityu_tools/exports.dart';
 import 'package:path/path.dart' as path;
@@ -142,6 +143,49 @@ class Utils {
     }
   }
 
+  static Widget adaptiveAction(
+      {required BuildContext context,
+      required VoidCallback onPressed,
+      required Widget child}) {
+    final ThemeData theme = Theme.of(context);
+    switch (theme.platform) {
+      case TargetPlatform.android:
+      case TargetPlatform.fuchsia:
+      case TargetPlatform.linux:
+      case TargetPlatform.windows:
+        return TextButton(onPressed: onPressed, child: child);
+      case TargetPlatform.iOS:
+      case TargetPlatform.macOS:
+        return CupertinoDialogAction(onPressed: onPressed, child: child);
+    }
+  }
+
+  static void showDeniedDialog(BuildContext context) {
+    showAdaptiveDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog.adaptive(
+            title: const Text("权限申请异常"),
+            content: const Text('请在【应用信息】-【权限管理】中，开启全部所需权限，以正常使用惠'),
+            actions: [
+              adaptiveAction(
+                context: context,
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('取消'),
+              ),
+              adaptiveAction(
+                context: context,
+                onPressed: () {
+                  openAppSettings();
+                  Navigator.pop(context, true);
+                },
+                child: const Text('去设置'),
+              ),
+            ],
+          );
+        });
+  }
+
   /// date = '${date.substring(0, 8)}T${date.substring(8)}';
   ///"20230405151212"
   static int getSeconds(String? dt, {String? newPattern}) {
@@ -251,7 +295,7 @@ class Utils {
       data.files.add(entry);
     }
     final result = await dio.fetch<Map<String, dynamic>>(
-        _setStreamType2<ResponseBodyMt>(Options(
+        setStreamType2<ResponseBodyMt>(Options(
                 method: 'POST',
                 headers: headers,
                 extra: extra,
@@ -263,7 +307,7 @@ class Utils {
     return value;
   }
 
-  static RequestOptions _setStreamType2<T>(RequestOptions requestOptions) {
+  static RequestOptions setStreamType2<T>(RequestOptions requestOptions) {
     if (T != dynamic &&
         !(requestOptions.responseType == ResponseType.bytes ||
             requestOptions.responseType == ResponseType.stream)) {
