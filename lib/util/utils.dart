@@ -4,7 +4,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:ityu_tools/exports.dart';
@@ -97,6 +96,10 @@ class Utils {
 
   static bool getSafeBool(dynamic data) {
     return data ?? false;
+  }
+
+  static String getStringForDefault(dynamic data, {String defaultStr = ""}) {
+    return data ?? defaultStr;
   }
 
   static bool getSafeIsEmpty(dynamic data) {
@@ -281,31 +284,31 @@ class Utils {
     return time;
   }
 
-  static Future<ResponseBodyMt> postFormData3Web(
-      Dio dio, List<XFile> files) async {
-    const extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
-    final headers = <String, dynamic>{};
-    final data = FormData();
-
-    for (int i = 0; i < files.length; i++) {
-      final bytes = await files[i].readAsBytes();
-      final entry = MapEntry(
-          'file', MultipartFile.fromBytes(bytes, filename: files[i].name));
-      data.files.add(entry);
-    }
-    final result = await dio.fetch<Map<String, dynamic>>(
-        setStreamType2<ResponseBodyMt>(Options(
-                method: 'POST',
-                headers: headers,
-                extra: extra,
-                contentType: 'multipart/form-data')
-            .compose(dio.options, 'comm/uploadFile',
-                queryParameters: queryParameters, data: data)
-            .copyWith(baseUrl: dio.options.baseUrl)));
-    final value = ResponseBodyMt.fromJson(result.data!);
-    return value;
-  }
+  // static Future<ResponseBodyMt> postFormData3Web(
+  //     Dio dio, List<XFile> files) async {
+  //   const extra = <String, dynamic>{};
+  //   final queryParameters = <String, dynamic>{};
+  //   final headers = <String, dynamic>{};
+  //   final data = FormData();
+  //
+  //   for (int i = 0; i < files.length; i++) {
+  //     final bytes = await files[i].readAsBytes();
+  //     final entry = MapEntry(
+  //         'file', MultipartFile.fromBytes(bytes, filename: files[i].name));
+  //     data.files.add(entry);
+  //   }
+  //   final result = await dio.fetch<Map<String, dynamic>>(
+  //       setStreamType2<ResponseBodyMt>(Options(
+  //               method: 'POST',
+  //               headers: headers,
+  //               extra: extra,
+  //               contentType: 'multipart/form-data')
+  //           .compose(dio.options, 'comm/uploadFile',
+  //               queryParameters: queryParameters, data: data)
+  //           .copyWith(baseUrl: dio.options.baseUrl)));
+  //   final value = ResponseBodyMt.fromJson(result.data!);
+  //   return value;
+  // }
 
   static RequestOptions setStreamType2<T>(RequestOptions requestOptions) {
     if (T != dynamic &&
