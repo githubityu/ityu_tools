@@ -11,6 +11,7 @@ class DelayFunction{
   }
   void cancel(){
     resetButtonTimer?.cancel();
+    resetButtonTimer = null;
   }
 }
 
@@ -27,5 +28,6 @@ class StreamFunction{
   }
   void cancel(){
     streamSubscription?.cancel();
+    streamSubscription = null;
   }
 }

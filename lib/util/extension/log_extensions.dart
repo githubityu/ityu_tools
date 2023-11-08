@@ -7,7 +7,7 @@ import 'package:logger/logger.dart';
 extension ObjectExt on Object? {
   void log([dynamic error, StackTrace? stackTrace]) {
     if (kDebugMode) {
-      Logger().e(toString(), error);
+      Logger().e(toString(), error: error);
     }
   }
 
@@ -21,7 +21,7 @@ extension ObjectExt on Object? {
 class ErrorLogger {
   void logError([dynamic error, StackTrace? stackTrace]) {
     if (kDebugMode) {
-      Logger().e(toString(), error, stackTrace);
+      Logger().e(toString(), error: error, stackTrace: stackTrace);
     }
   }
 

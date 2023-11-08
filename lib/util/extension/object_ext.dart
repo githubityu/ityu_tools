@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:quiver/strings.dart';
+
 extension GenericExt<T> on T {
   R let<R>(R Function(T t) transform) => transform(this);
 

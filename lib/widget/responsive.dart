@@ -2,37 +2,41 @@ import 'package:flutter/material.dart';
 
 class Responsive extends StatelessWidget {
   const Responsive({
+    required this.largeScreen,
+    this.mediumScreen,
+    this.smallScreen,
     Key? key,
-    required this.mobile,
-    this.mobileLarge,
-    this.tablet,
-    required this.desktop,
   }) : super(key: key);
-  final Widget mobile;
-  final Widget? mobileLarge;
-  final Widget? tablet;
-  final Widget desktop;
+  final Widget largeScreen;
+  final Widget? mediumScreen;
+  final Widget? smallScreen;
 
-  static bool isMobile(BuildContext context) =>
-      MediaQuery.of(context).size.width <= 500;
-  static bool isMobileLarge(BuildContext context) =>
-      MediaQuery.of(context).size.width <= 700;
-  static bool isTablet(BuildContext context) =>
-      MediaQuery.of(context).size.width <= 1024;
-  static bool isDesktop(BuildContext context) =>
-      MediaQuery.of(context).size.width >= 1024;
+  static bool isSmallScreen(BuildContext context) {
+    return MediaQuery.sizeOf(context).width < 800;
+  }
+
+  static bool isLargeScreen(BuildContext context) {
+    return MediaQuery.sizeOf(context).width > 1200;
+  }
+
+  static bool isMediumScreen(BuildContext context) {
+    return MediaQuery.sizeOf(context).width >= 800 &&
+        MediaQuery.sizeOf(context).width <= 1200;
+  }
 
   @override
   Widget build(BuildContext context) {
-    final Size size = MediaQuery.of(context).size;
-    if (size.width >= 1024) {
-      return desktop;
-    } else if (size.width >= 700 && tablet != null) {
-      return tablet!;
-    } else if (size.width >= 500 && mobileLarge != null) {
-      return mobileLarge!;
-    } else {
-      return mobile;
-    }
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth > 1200) {
+          return largeScreen;
+        } else if (constraints.maxWidth <= 1200 &&
+            constraints.maxWidth >= 800) {
+          return mediumScreen ?? largeScreen;
+        } else {
+          return smallScreen ?? largeScreen;
+        }
+      },
+    );
   }
 }
