@@ -28,3 +28,4 @@ export 'popup_window_dialog.dart';
 export 'wd_underlinetabindicator.dart';
 export 'responsive.dart';
 export 'tree_list.dart';
+export 'pager/pager.dart';

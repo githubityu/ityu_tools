@@ -1,61 +1,60 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:ityu_tools/util/extension/build_context_ext.dart';
 import 'package:ityu_tools/util/extension/log_extensions.dart';
 import 'package:ityu_tools/util/extension/object_ext.dart';
 
 class DialogUtils {
-  static Future<List<XFile>?> showPicDialog(
-      BuildContext context, ImagePicker picker,
-      {bool isMul = false}) async {
-    return await showCupertinoModalPopup<List<XFile>?>(
-        context: context,
-        builder: (context) {
-          return Theme(
-            data: context.theme.copyWith(
-                colorScheme: const ColorScheme.dark(primary: Colors.white)),
-            child: CupertinoActionSheet(
-              cancelButton: CupertinoActionSheetAction(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: const Text('Cancel'),
-              ),
-              actions: [
-                CupertinoActionSheetAction(
-                  onPressed: () async {
-                    if (isMul) {
-                      final List<XFile> file = await picker.pickMultiImage();
-                      file.let((t) {
-                        Navigator.pop(context, file);
-                      });
-                    } else {
-                      final XFile? file =
-                          await picker.pickImage(source: ImageSource.gallery);
-                      file?.let((t) {
-                        Navigator.pop(context, [t]);
-                      });
-                    }
-                  },
-                  child: const Text('Photo'),
-                ),
-                CupertinoActionSheetAction(
-                  onPressed: () async {
-                    final XFile? file =
-                        await picker.pickImage(source: ImageSource.camera);
-                    file?.let((t) {
-                      Navigator.pop(context, [t]);
-                    });
-                  },
-                  child: const Text('Camera'),
-                ),
-              ],
-            ),
-          );
-        });
-  }
+  // static Future<List<XFile>?> showPicDialog(
+  //     BuildContext context, ImagePicker picker,
+  //     {bool isMul = false}) async {
+  //   return await showCupertinoModalPopup<List<XFile>?>(
+  //       context: context,
+  //       builder: (context) {
+  //         return Theme(
+  //           data: context.theme.copyWith(
+  //               colorScheme: const ColorScheme.dark(primary: Colors.white)),
+  //           child: CupertinoActionSheet(
+  //             cancelButton: CupertinoActionSheetAction(
+  //               onPressed: () {
+  //                 Navigator.pop(context);
+  //               },
+  //               child: const Text('Cancel'),
+  //             ),
+  //             actions: [
+  //               CupertinoActionSheetAction(
+  //                 onPressed: () async {
+  //                   if (isMul) {
+  //                     final List<XFile> file = await picker.pickMultiImage();
+  //                     file.let((t) {
+  //                       Navigator.pop(context, file);
+  //                     });
+  //                   } else {
+  //                     final XFile? file =
+  //                         await picker.pickImage(source: ImageSource.gallery);
+  //                     file?.let((t) {
+  //                       Navigator.pop(context, [t]);
+  //                     });
+  //                   }
+  //                 },
+  //                 child: const Text('Photo'),
+  //               ),
+  //               CupertinoActionSheetAction(
+  //                 onPressed: () async {
+  //                   final XFile? file =
+  //                       await picker.pickImage(source: ImageSource.camera);
+  //                   file?.let((t) {
+  //                     Navigator.pop(context, [t]);
+  //                   });
+  //                 },
+  //                 child: const Text('Camera'),
+  //               ),
+  //             ],
+  //           ),
+  //         );
+  //       });
+  // }
 
   static Future<bool?> showTipsDialog(
     BuildContext context, {
