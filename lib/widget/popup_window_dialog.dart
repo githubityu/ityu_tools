@@ -26,12 +26,11 @@ class PopupWindowDialog extends StatefulWidget {
   final ValueNotifier vn;
   final Duration duration;
 
-  const PopupWindowDialog(
-      {super.key,
-      required this.targetContext,
-      required this.child,
-      Duration? duration,
-      required this.vn})
+  const PopupWindowDialog({super.key,
+    required this.targetContext,
+    required this.child,
+    Duration? duration,
+    required this.vn})
       : duration = duration ?? const Duration(milliseconds: 300);
 
   @override
@@ -45,9 +44,12 @@ class _PopupWindowDialogState extends State<PopupWindowDialog> {
   @override
   void initState() {
     super.initState();
-    top = Utils.getOffsetAndSize(widget.targetContext).offset.dy;
+    top = Utils
+        .getOffsetAndSize(widget.targetContext)
+        .offset
+        .dy;
     Future.delayed(Duration.zero).then((value) {
-      setState(() {
+      safeSetState(() {
         slideY = 0;
       });
     });
@@ -57,11 +59,15 @@ class _PopupWindowDialogState extends State<PopupWindowDialog> {
   }
 
   void close() {
-    setState(() {
+    safeSetState(() {
       slideY = -1;
     });
     Future.delayed(widget.duration)
-        .then((value) => Navigator.of(context).pop(widget.vn.value));
+        .then((value) {
+      if (mounted) {
+        Navigator.of(context).pop(widget.vn.value);
+      }
+    });
   }
 
   @override

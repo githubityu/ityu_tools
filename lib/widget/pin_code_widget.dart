@@ -2,16 +2,34 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ityu_tools/exports.dart';
 
+///
+///
+///    ```dart
+///    late InputDecoration inputDecoration = const InputDecoration(
+///   contentPadding: EdgeInsets.symmetric(horizontal: 10),
+///   hintStyle: TextStyle(color: ColorName.colorBEBEBE),
+///   enabledBorder: OutlineInputBorder(
+///       borderSide: BorderSide(color: ColorName.colorBEBEBE, width: 0.5)),
+///   errorBorder:
+///       OutlineInputBorder(borderSide: BorderSide(color: ColorName.red)),
+///   focusedErrorBorder:
+///       OutlineInputBorder(borderSide: BorderSide(color: ColorName.red)),
+///   focusedBorder:
+///       OutlineInputBorder(borderSide: BorderSide(color: Colors.black)));
+///    ```
+
 class PinCodeWidget extends StatefulWidget {
   final List<String> keys;
   final GlobalKey<FormState> formKey;
   final InputDecoration? inputDecoration;
   final bool isPwd;
 
-  const PinCodeWidget({Key? key,
-    required this.keys,
-    required this.formKey,
-    this.inputDecoration, this.isPwd = false})
+  const PinCodeWidget(
+      {Key? key,
+        required this.keys,
+        required this.formKey,
+        this.inputDecoration,
+        this.isPwd = false})
       : super(key: key);
 
   @override
@@ -37,31 +55,30 @@ class _PinCodeWidgetState extends State<PinCodeWidget> {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: List.generate(
               widget.keys.length,
-                  (index) =>
-                  SizedBox(
-                    width: 50,
-                    child: TextFormField(
-                      obscureText: widget.isPwd,
-                      textAlign: TextAlign.center,
-                      validator: (value) {
-                        if (value.isNullOrEmpty) {
-                          return '';
-                        }
-                      },
-                      showCursor: false,
-                      inputFormatters: [LengthLimitingTextInputFormatter(1)],
-                      onChanged: (data) {
-                        if (data.isNotNullOrEmpty) {
-                          FocusManager.instance.primaryFocus?.nextFocus();
-                        }
-                      },
-                      onSaved: (newValue) {
-                        widget.keys[index] = newValue ?? '';
-                      },
-                      keyboardType: TextInputType.number,
-                      decoration: widget.inputDecoration,
-                    ),
-                  )),
+                  (index) => SizedBox(
+                width: 50,
+                child: TextFormField(
+                  obscureText: widget.isPwd,
+                  textAlign: TextAlign.center,
+                  validator: (value) {
+                    if (value.isNullOrEmpty) {
+                      return '';
+                    }
+                  },
+                  showCursor: false,
+                  inputFormatters: [LengthLimitingTextInputFormatter(1)],
+                  onChanged: (data) {
+                    if (data.isNotNullOrEmpty) {
+                      FocusManager.instance.primaryFocus?.nextFocus();
+                    }
+                  },
+                  onSaved: (newValue) {
+                    widget.keys[index] = newValue ?? '';
+                  },
+                  keyboardType: TextInputType.number,
+                  decoration: widget.inputDecoration,
+                ),
+              )),
         ),
       ),
     );

@@ -25,3 +25,11 @@ extension BuildContextExtension on BuildContext {
 
   Color get surfaceColor => colorScheme.surface;
 }
+
+extension StateExtension on State {
+  void safeSetState(VoidCallback fn) {
+    if (mounted) {
+      setState(fn);
+    }
+  }
+}

@@ -99,7 +99,7 @@ class Utils {
   }
 
   static String getStringForDefault(dynamic data, {String defaultStr = ""}) {
-    return data ?? defaultStr;
+    return data == null ? defaultStr : '$data';
   }
 
   static bool getSafeIsEmpty(dynamic data) {

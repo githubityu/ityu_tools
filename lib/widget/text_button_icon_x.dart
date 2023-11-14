@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 class TextButtonWithIconX extends TextButton {
   TextButtonWithIconX({
     super.key,
@@ -15,13 +16,13 @@ class TextButtonWithIconX extends TextButton {
     bool? isPre,
     double? gap,
     required Widget icon,
-     Widget? label,
+    Widget? label,
   }) : super(
           autofocus: autofocus ?? false,
           clipBehavior: clipBehavior ?? Clip.none,
           child: _TextButtonWithIconChild(
               icon: icon,
-              mainAxisSize: mainAxisSize??MainAxisSize.min,
+              mainAxisSize: mainAxisSize ?? MainAxisSize.min,
               label: label,
               direction: direction ?? Axis.horizontal,
               isPre: isPre ?? true,
@@ -44,7 +45,7 @@ class TextButtonWithIconX extends TextButton {
 
 class _TextButtonWithIconChild extends StatelessWidget {
   const _TextButtonWithIconChild({
-     this.label,
+    this.label,
     required this.mainAxisSize,
     required this.icon,
     required this.direction,
@@ -61,8 +62,14 @@ class _TextButtonWithIconChild extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final gapWidget = direction==Axis.horizontal?SizedBox(width: gap):SizedBox(height: gap);
-    final labels = label==null?[icon]:isPre?[icon, gapWidget, label!]:[label!, SizedBox(width: gap), icon];
+    final gapWidget = direction == Axis.horizontal
+        ? SizedBox(width: gap)
+        : SizedBox(height: gap);
+    final labels = label == null
+        ? [icon]
+        : isPre
+            ? [icon, gapWidget, label!]
+            : [label!, SizedBox(width: gap), icon];
     return Flex(
       mainAxisSize: mainAxisSize,
       direction: direction,
@@ -72,7 +79,6 @@ class _TextButtonWithIconChild extends StatelessWidget {
 }
 
 class OutlinedButtonWithIconX extends OutlinedButton {
-
   OutlinedButtonWithIconX({
     super.key,
     required super.onPressed,
@@ -92,17 +98,23 @@ class OutlinedButtonWithIconX extends OutlinedButton {
           clipBehavior: clipBehavior ?? Clip.none,
           child: _TextButtonWithIconChild(
               icon: icon,
-              mainAxisSize: mainAxisSize??MainAxisSize.min,
+              mainAxisSize: mainAxisSize ?? MainAxisSize.min,
               label: label,
               direction: direction ?? Axis.horizontal,
               isPre: isPre ?? true,
               gap: gap ?? 8),
         );
+
+  @override
+  ButtonStyle defaultStyleOf(BuildContext context) {
+    final EdgeInsetsGeometry scaledPadding = ButtonStyleButton.scaledPadding(
+      const EdgeInsets.all(8),
+      const EdgeInsets.symmetric(horizontal: 4),
+      const EdgeInsets.symmetric(horizontal: 4),
+      MediaQuery.maybeOf(context)?.textScaleFactor ?? 1,
+    );
+    return super.defaultStyleOf(context).copyWith(
+          padding: MaterialStatePropertyAll<EdgeInsetsGeometry>(scaledPadding),
+        );
+  }
 }
-
-
-
-
-
-
-
