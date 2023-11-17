@@ -4,6 +4,7 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:ityu_tools/util/extension/build_context_ext.dart';
 import 'package:ityu_tools/util/extension/log_extensions.dart';
 import 'package:ityu_tools/util/extension/object_ext.dart';
+import 'package:ityu_tools/widget/safe_area_widget.dart';
 
 class DialogUtils {
   // static Future<List<XFile>?> showPicDialog(
@@ -261,7 +262,7 @@ class DialogUtils {
   }
 
   static showBottomWidget(BuildContext context, Widget child,
-      {double height = 200, bool barrierDismissible = true}) async {
+      {double height = 250, bool barrierDismissible = true}) async {
     return await showCupertinoModalPopup(
         context: context,
         barrierDismissible: barrierDismissible,
@@ -271,7 +272,7 @@ class DialogUtils {
                 color: Colors.white,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(10))),
             constraints: BoxConstraints.loose(Size.fromHeight(height)),
-            child: child,
+            child: BottomChildAdapter(child: child),
           );
         });
   }

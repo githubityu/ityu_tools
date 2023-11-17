@@ -29,3 +29,4 @@ export 'wd_underlinetabindicator.dart';
 export 'responsive.dart';
 export 'tree_list.dart';
 export 'pager/pager.dart';
+export 'safe_area_widget.dart';
