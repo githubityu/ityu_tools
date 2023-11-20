@@ -22,22 +22,23 @@ dependencies:
   hive_flutter: ^1.1.0
 
   #加载图片
-  cached_network_image: ^3.2.3
+  cached_network_image: ^3.3.0
 
   #  tuple: ^2.0.1
 
   #权限管理
-  permission_handler: ^11.0.0
+  permission_handler: ^11.0.1
   #弹窗
-  flutter_smart_dialog: ^4.9.4
+  flutter_smart_dialog: ^4.9.5+1
   #工具
   quiver: ^3.2.1
-  url_launcher: ^6.1.14
+  url_launcher: ^6.2.1
   #  #选择图片
   #  image_picker: ^1.0.4
   #侧滑
   #  flutter_image_compress: ^2.0.4
-  webview_flutter: ^4.2.4
+  webview_flutter: ^4.4.2
+  webview_flutter_web: ^0.2.2+3
 #  device_info_plus: ^9.0.3
 #  path_provider: ^2.1.1
 

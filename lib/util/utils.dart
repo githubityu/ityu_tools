@@ -11,6 +11,8 @@ import 'package:path/path.dart' as path;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:quiver/strings.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:webview_flutter/webview_flutter.dart';
+import 'package:webview_flutter_web/webview_flutter_web.dart';
 
 final inputFormatters = [
   FilteringTextInputFormatter.allow(RegExp('[0-9a-zA-Z]'))
@@ -284,32 +286,6 @@ class Utils {
     return time;
   }
 
-  // static Future<ResponseBodyMt> postFormData3Web(
-  //     Dio dio, List<XFile> files) async {
-  //   const extra = <String, dynamic>{};
-  //   final queryParameters = <String, dynamic>{};
-  //   final headers = <String, dynamic>{};
-  //   final data = FormData();
-  //
-  //   for (int i = 0; i < files.length; i++) {
-  //     final bytes = await files[i].readAsBytes();
-  //     final entry = MapEntry(
-  //         'file', MultipartFile.fromBytes(bytes, filename: files[i].name));
-  //     data.files.add(entry);
-  //   }
-  //   final result = await dio.fetch<Map<String, dynamic>>(
-  //       setStreamType2<ResponseBodyMt>(Options(
-  //               method: 'POST',
-  //               headers: headers,
-  //               extra: extra,
-  //               contentType: 'multipart/form-data')
-  //           .compose(dio.options, 'comm/uploadFile',
-  //               queryParameters: queryParameters, data: data)
-  //           .copyWith(baseUrl: dio.options.baseUrl)));
-  //   final value = ResponseBodyMt.fromJson(result.data!);
-  //   return value;
-  // }
-
   static RequestOptions setStreamType2<T>(RequestOptions requestOptions) {
     if (T != dynamic &&
         !(requestOptions.responseType == ResponseType.bytes ||
@@ -338,4 +314,9 @@ class Utils {
       }
     });
   }
+
+  static void initWebViewPlatformInstance(){
+    WebViewPlatform.instance = WebWebViewPlatform();
+  }
+
 }
