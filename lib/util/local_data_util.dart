@@ -1,5 +1,7 @@
 import 'package:hive_flutter/hive_flutter.dart';
 
+///
+@Deprecated("use sp_utils")
 class LocalDataUtil {
   const LocalDataUtil._();
 

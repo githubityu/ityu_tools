@@ -71,9 +71,13 @@ class _MyIFrameState extends State<MyIFrame> {
     );
 
   @override
-  void initState() {
-    super.initState();
-    //gestureNavigationEnabled
+  void didUpdateWidget(covariant MyIFrame oldWidget) {
+    if (widget.url != oldWidget.url) {
+      _controller.loadRequest(LoadRequestParams(
+        uri: Uri.parse(widget.url),
+      ));
+    }
+    super.didUpdateWidget(oldWidget);
   }
 
   @override

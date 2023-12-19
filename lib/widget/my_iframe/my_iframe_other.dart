@@ -20,6 +20,15 @@ class _MyIFrameState extends State<MyIFrame> {
   ValueNotifier<bool> isShowLoading = ValueNotifier(true);
   late WebViewController controller;
 
+
+
+  @override
+  void dispose() {
+    controller.loadRequest(Uri.parse('about:blank'));
+    controller.clearCache();
+    super.dispose();
+  }
+
   @override
   void initState() {
     super.initState();

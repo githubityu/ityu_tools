@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -11,8 +12,6 @@ import 'package:path/path.dart' as path;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:quiver/strings.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:webview_flutter/webview_flutter.dart';
-import 'package:webview_flutter_web/webview_flutter_web.dart';
 
 final inputFormatters = [
   FilteringTextInputFormatter.allow(RegExp('[0-9a-zA-Z]'))
@@ -315,8 +314,56 @@ class Utils {
     });
   }
 
-  static void initWebViewPlatformInstance(){
-    WebViewPlatform.instance = WebWebViewPlatform();
+  static String getClashList(String base64String) {
+    final decodedString = parseBase64(base64String);
+    final list = decodedString.split("\n");
+    final clashList = [];
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].trim().length > 8) {
+        clashList.add(vmessToClash(list[i].trim()));
+      }
+    }
+    return json.encode(clashList);
   }
 
+  static String parseBase64(String base64String) {
+    var bytes = base64.decode(base64String);
+    return utf8.decode(bytes);
+  }
+
+  static Map<String, dynamic> vmessToClash(String vmessURL) {
+    final decodedString = parseBase64(vmessURL.substring(8));
+    var jsonMap = json.decode(decodedString);
+    // 提取字段
+    var name = jsonMap['ps'];
+    var server = jsonMap['add'];
+    var port = jsonMap['port'];
+    var uuid = jsonMap['id'];
+    var alterId = jsonMap['aid'];
+    var cipher = jsonMap['type'];
+    var network = jsonMap['net'];
+    var wsPath = jsonMap['path'];
+    var wsHeaders = jsonMap['host'];
+
+    // 构建 Clash 节点信息
+    var clashNode = {
+      'name': name,
+      'type': 'vmess',
+      'server': server,
+      'port': port,
+      'uuid': uuid,
+      'alterId': alterId,
+      'cipher': cipher,
+      'network': network,
+    };
+
+    if (network == 'ws') {
+      clashNode['network'] = 'ws';
+      clashNode['ws-path'] = wsPath;
+      clashNode['ws-headers'] = {'Host': wsHeaders};
+    }
+
+    // 输出 Clash 节点信息
+    return clashNode;
+  }
 }
