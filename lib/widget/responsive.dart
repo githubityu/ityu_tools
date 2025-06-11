@@ -5,11 +5,13 @@ class Responsive extends StatelessWidget {
     required this.largeScreen,
     this.mediumScreen,
     this.smallScreen,
-    Key? key,
-  }) : super(key: key);
+    this.useScreenSize = false, // 新增参数，默认使用屏幕尺寸
+    super.key,
+  });
   final Widget largeScreen;
   final Widget? mediumScreen;
   final Widget? smallScreen;
+  final bool useScreenSize;
 
   static bool isSmallScreen(BuildContext context) {
     return MediaQuery.sizeOf(context).width < 800;
@@ -26,17 +28,28 @@ class Responsive extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        if (constraints.maxWidth > 1200) {
-          return largeScreen;
-        } else if (constraints.maxWidth <= 1200 &&
-            constraints.maxWidth >= 800) {
-          return mediumScreen ?? largeScreen;
-        } else {
-          return smallScreen ?? largeScreen;
-        }
-      },
-    );
+    if (useScreenSize) {
+      final screenWidth = MediaQuery.sizeOf(context).width;
+      if (screenWidth > 1200) {
+        return largeScreen;
+      } else if (screenWidth <= 1200 && screenWidth >= 800) {
+        return mediumScreen ?? largeScreen;
+      } else {
+        return smallScreen ?? largeScreen;
+      }
+    } else {
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          if (constraints.maxWidth > 1200) {
+            return largeScreen;
+          } else if (constraints.maxWidth <= 1200 &&
+              constraints.maxWidth >= 800) {
+            return mediumScreen ?? largeScreen;
+          } else {
+            return smallScreen ?? largeScreen;
+          }
+        },
+      );
+    }
   }
 }

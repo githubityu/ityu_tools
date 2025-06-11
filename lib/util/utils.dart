@@ -298,6 +298,12 @@ class Utils {
     return requestOptions;
   }
 
+  static MultipartFile getMultipartFile(String path) {
+    final file = File(path);
+    final filename = file.path.split(Platform.pathSeparator).last;
+    return MultipartFile.fromBytes(file.readAsBytesSync(), filename: filename);
+  }
+
   static ({Offset offset, Size size}) getOffsetAndSize(
       BuildContext targetContext) {
     final renderBox = targetContext.findRenderObject() as RenderBox;
@@ -367,28 +373,13 @@ class Utils {
     return clashNode;
   }
 
-  // static Future<String> generateShortLink(String longUrl) async {
-  //   var apiKey = '';
-  //   var endpoint = 'https://api-ssl.bitly.com/v4/shorten';
-  //
-  //   var headers = {
-  //     'Content-Type': 'application/json',
-  //     'Authorization': 'Bearer $apiKey',
-  //   };
-  //
-  //   var body = json.encode({
-  //     'long_url': longUrl,
-  //   });
-  //
-  //   var response = await http.post(Uri.parse(endpoint), headers: headers, body: body);
-  //
-  //   if (response.statusCode == 200) {
-  //     var jsonResponse = json.decode(response.body);
-  //     var shortLink = jsonResponse['id'];
-  //     return shortLink;
-  //   } else {
-  //     throw Exception('Failed to generate short link');
-  //   }
-  // }
 
+ static String subZeroAndDot(String input) {
+    var s = input;
+    if (s.indexOf('.') > 0) {
+      s = s.replaceAll(RegExp(r'0+?$'), ''); // 去掉多余的0
+      s = s.replaceAll(RegExp(r'[.]$'), ''); // 如最后一位是.则去掉
+    }
+    return s;
+  }
 }

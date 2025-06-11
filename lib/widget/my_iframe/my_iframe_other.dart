@@ -10,7 +10,7 @@ class MyIFrame extends StatefulWidget {
   final String url;
   final Function(double, dynamic)? heightFunc;
 
-  const MyIFrame(this.url, {Key? key, this.heightFunc}) : super(key: key);
+  const MyIFrame(this.url, {super.key, this.heightFunc});
 
   @override
   State<MyIFrame> createState() => _MyIFrameState();
@@ -36,7 +36,6 @@ class _MyIFrameState extends State<MyIFrame> {
     controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(Colors.transparent)
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setNavigationDelegate(
         NavigationDelegate(
           onProgress: (int progress) {

@@ -29,7 +29,7 @@ extension BuildContextExtension on BuildContext {
 extension StateExtension on State {
   void safeSetState(VoidCallback fn) {
     if (mounted) {
-      setState(fn);
+       setState(fn);
     }
   }
 }

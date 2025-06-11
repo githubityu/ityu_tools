@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 
 class ArrowRightIcon extends StatelessWidget {
-  const ArrowRightIcon({super.key});
+  final Color color;
+  final double size;
+
+  const ArrowRightIcon({Color? color, double? size, super.key})
+      : color = color ?? Colors.black,
+        size = size ?? 15;
 
   @override
   Widget build(BuildContext context) {
-    return const Icon(
+    return  Icon(
       Icons.arrow_forward_ios_rounded,
-      color: Colors.black,
-      size: 15,
+      color: color,
+      size: size,
     );
   }
 }
-
-

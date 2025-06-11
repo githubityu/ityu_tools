@@ -20,6 +20,18 @@ extension DateTimeExt on DateTime {
   String formatYYYYMMdd([String newPattern = YYMMDD]) {
     return DateFormat(newPattern).format(this);
   }
+  DateTime max(DateTime? other) {
+    if (other == null) {
+      return this;
+    }
+    return isAfter(other) ? this : other;
+  }
+  DateTime min(DateTime? other) {
+    if (other == null) {
+      return this;
+    }
+    return isBefore(other) ? this : other;
+  }
 
   ///e.format(MMDDHHMM).parse(newPattern: MMDDHHMM).secondsSinceEpoch
   String get secondsSinceEpoch =>

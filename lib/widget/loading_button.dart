@@ -6,8 +6,7 @@ class LoadingButton extends StatefulWidget {
   final Future Function()? onPressed;
   final String text;
 
-  const LoadingButton({Key? key, required this.onPressed, required this.text})
-      : super(key: key);
+  const LoadingButton({super.key, required this.onPressed, required this.text});
 
   @override
   State createState() => _LoadingButtonState();

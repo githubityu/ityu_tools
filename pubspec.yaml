@@ -10,29 +10,26 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.6
+  cupertino_icons: ^1.0.8
   intl: any
-  dio: ^5.4.0
-  logger: ^2.0.2+1
-  #数据存储
-  hive_flutter: ^1.1.0
+  dio: ^5.8.0+1
+  logger: ^2.5.0
   #加载图片
-  cached_network_image: ^3.3.0
+  cached_network_image: ^3.4.1
   #权限管理
-  permission_handler: ^11.1.0
+  permission_handler: ^12.0.0+1
   #弹窗
-  flutter_smart_dialog: ^4.9.5+1
+  flutter_smart_dialog: ^4.9.8+7
   #工具
-  quiver: ^3.2.1
-  url_launcher: ^6.2.2
-  webview_flutter: ^4.4.2
-  webview_flutter_web: ^0.2.2+3
-  shared_preferences: ^2.2.2
+  quiver: ^3.2.2
+  url_launcher: ^6.3.1
+  webview_flutter: ^4.13.0
+  webview_flutter_web: ^0.2.3+4
+  shared_preferences: ^2.5.3
 
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^2.0.3
-flutter:
+  flutter_lints: ^5.0.0
 

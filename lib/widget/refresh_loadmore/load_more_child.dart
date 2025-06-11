@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 
 typedef LoadMoreCallback = Future<void> Function();
+
 /// 封装下拉刷新与加载更多
 class LoadMoreChild extends StatefulWidget {
   const LoadMoreChild({
-    Key? key,
+    super.key,
     required this.child,
     this.loadMore,
     this.hasMore = false,
-  }) : super(key: key);
+  });
+
   final LoadMoreCallback? loadMore;
   final bool hasMore;
   final Widget child;
@@ -18,25 +20,23 @@ class LoadMoreChild extends StatefulWidget {
 }
 
 class _LoadMoreChildState extends State<LoadMoreChild> {
-  bool isLoading = false;
+  final isLoading = ValueNotifier(false);
+  final rebuild = ValueNotifier(false);
 
   Future<void> loadMoreFunc() async {
     if (widget.loadMore == null) {
       return;
     }
-    if (isLoading) {
+    if (isLoading.value) {
       return;
     }
     if (!widget.hasMore) {
       return;
     }
-    setState(() {
-      isLoading = true;
-    });
+    isLoading.value = true;
     await widget.loadMore?.call();
-    setState(() {
-      isLoading = false;
-    });
+    isLoading.value = false;
+    rebuild.value = !rebuild.value;
   }
 
   @override
@@ -55,13 +55,30 @@ class _LoadMoreChildState extends State<LoadMoreChild> {
       child: Builder(
         builder: (context) {
           final list = [
-            Expanded(child: widget.child),
-            Visibility(
-              visible: isLoading,
-              child: const FooterListWidget(),
+            ValueListenableBuilder(
+                valueListenable: rebuild,
+                builder: (context, v, c) {
+                  return widget.child;
+                }),
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: ValueListenableBuilder(
+                  valueListenable: isLoading,
+                  builder: (context, v, c) {
+                    return AnimatedCrossFade(
+                      duration: const Duration(milliseconds: 300),
+                      firstChild: const SizedBox.shrink(),
+                      secondChild: const FooterListWidget(),
+                      crossFadeState: v
+                          ? CrossFadeState.showSecond
+                          : CrossFadeState.showFirst,
+                    );
+                  }),
             ),
           ];
-          return Column(
+          return Stack(
             children: list,
           );
         },
@@ -77,18 +94,19 @@ class FooterListWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 45,
-      alignment: Alignment.center,
-      child: const Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedBox(width: 20, height: 20, child: CircularProgressIndicator()),
-          SizedBox(width: 10),
-          Text('loading')
-        ],
+    return RepaintBoundary(
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        alignment: Alignment.center,
+        child: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(width: 20, height: 20, child: CircularProgressIndicator()),
+            SizedBox(width: 10),
+            Text('loading')
+          ],
+        ),
       ),
     );
   }
 }
-

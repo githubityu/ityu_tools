@@ -9,6 +9,5 @@ export 'extension/object_ext.dart';
 export 'image_utils.dart';
 export 'reg_exp_util.dart';
 export 'sp_utils.dart';
-export 'local_data_util.dart';
 export 'utils.dart';
 export 'view_utils.dart';

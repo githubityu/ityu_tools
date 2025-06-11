@@ -5,6 +5,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:ityu_tools/exports.dart';
 
 typedef LibraryLoader = Future<void> Function();
 typedef DeferredWidgetBuilder = Widget Function();
@@ -112,7 +113,9 @@ class DeferredLoadingPlaceholder extends StatelessWidget {
                 '$name is a deferred component which are downloaded and installed at runtime.',
                 style: Theme.of(context).textTheme.bodyLarge),
             Container(height: 20),
-            const Center(child: CircularProgressIndicator()),
+             Center(child: CircularProgressIndicator(
+               color: context.theme.primaryColor
+            )),
           ],
         ),
       ),

@@ -23,7 +23,7 @@ class ResponseBodyMt {
   }
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'cod': code,
+        'code': code,
         'msg': msg,
         'data': data,
       };

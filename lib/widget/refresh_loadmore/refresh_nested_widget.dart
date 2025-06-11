@@ -4,11 +4,10 @@ import 'package:flutter/material.dart';
 class RefreshNestedWidget extends StatelessWidget {
   const RefreshNestedWidget(
       {required this.child,
-      Key? key,
+      super.key,
       required this.headerSliver,
       this.controller,
-      this.onRefresh})
-      : super(key: key);
+      this.onRefresh});
   final NestedScrollViewHeaderSliversBuilder headerSliver;
   final Widget child;
   final RefreshCallback? onRefresh;

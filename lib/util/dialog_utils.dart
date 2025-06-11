@@ -119,17 +119,23 @@ class DialogUtils {
       );
     });
   }
-
-  static Future showCommonDialog(BuildContext context,
-      {required Widget child, bool isClose = false}) async {
-    return await SmartDialog.show(builder: (context) {
-      return SimpleDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        children: [child],
-      );
-    });
+  static Future<bool?> showCommonDialog(
+      BuildContext context, {
+        required Widget child,
+        bool isClose = false,
+      }) async {
+    return SmartDialog.show(
+      clickMaskDismiss: isClose,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          elevation: 0,
+          child: child,
+        );
+      },
+    );
   }
 
   static showBottomList(BuildContext context,
@@ -262,18 +268,20 @@ class DialogUtils {
   }
 
   static showBottomWidget(BuildContext context, Widget child,
-      {double height = 250, bool barrierDismissible = true}) async {
+      {double height = 250, bool barrierDismissible = true, Color? color}) async {
     return await showCupertinoModalPopup(
         context: context,
         barrierDismissible: barrierDismissible,
         builder: (BuildContext context) {
           return Container(
-            decoration: const BoxDecoration(
-                color: Colors.white,
+            decoration:  BoxDecoration(
+                color: color ?? Colors.white,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(10))),
             constraints: BoxConstraints.loose(Size.fromHeight(height)),
             child: BottomChildAdapter(child: child),
           );
         });
   }
+
+
 }

@@ -78,7 +78,7 @@ class SpUtil {
   }
 
   /// get string.
-  static String? getString(String key, {String? defValue = ''}) {
+  static String getString(String key, {String defValue = ''}) {
     return _prefs?.getString(key) ?? defValue;
   }
 
@@ -88,9 +88,10 @@ class SpUtil {
   }
 
   /// get bool.
-  static bool? getBool(String key, {bool? defValue = false}) {
+  static bool getBool(String key, {bool defValue = false}) {
     return _prefs?.getBool(key) ?? defValue;
   }
+
 
   /// put bool.
   static Future<bool>? putBool(String key, bool value) {
@@ -98,7 +99,7 @@ class SpUtil {
   }
 
   /// get int.
-  static int? getInt(String key, {int? defValue = 0}) {
+  static int getInt(String key, {int defValue = 0}) {
     return _prefs?.getInt(key) ?? defValue;
   }
 
@@ -108,7 +109,7 @@ class SpUtil {
   }
 
   /// get double.
-  static double? getDouble(String key, {double? defValue = 0.0}) {
+  static double getDouble(String key, {double defValue = 0.0}) {
     return _prefs?.getDouble(key) ?? defValue;
   }
 
@@ -118,8 +119,8 @@ class SpUtil {
   }
 
   /// get string list.
-  static List<String>? getStringList(String key,
-      {List<String>? defValue = const []}) {
+  static List<String> getStringList(String key,
+      {List<String> defValue = const []}) {
     return _prefs?.getStringList(key) ?? defValue;
   }
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:webview_flutter_platform_interface/webview_flutter_platform_interface.dart';
+import 'package:webview_flutter_web/webview_flutter_web.dart';
 
 // class MyIFrame extends StatefulWidget {
 //   final String url;
@@ -50,11 +51,16 @@ import 'package:webview_flutter_platform_interface/webview_flutter_platform_inte
 
 // ignore_for_file: public_member_api_docs
 
+void initWebViewPlatformInstance() {
+  WebViewPlatform.instance = WebWebViewPlatform();
+}
+
 class MyIFrame extends StatefulWidget {
   final String url;
   final Function(double, dynamic)? heightFunc;
 
-  const MyIFrame(this.url, {Key? key, this.heightFunc}) : super(key: key);
+  const MyIFrame(this.url, {Key? key, this.heightFunc})
+      : super(key: key);
 
   @override
   State<MyIFrame> createState() => _MyIFrameState();
@@ -70,6 +76,7 @@ class _MyIFrameState extends State<MyIFrame> {
       ),
     );
 
+  
   @override
   void didUpdateWidget(covariant MyIFrame oldWidget) {
     if (widget.url != oldWidget.url) {
