@@ -1,41 +1,32 @@
-// Copyright 2019 The Flutter team. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
-
 import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:ityu_tools/exports.dart';
 
 typedef LibraryLoader = Future<void> Function();
 typedef DeferredWidgetBuilder = Widget Function();
 
-/// Wraps the child inside a deferred module loader.
-///
-/// The child is created and a single instance of the Widget is maintained in
-/// state as long as closure to create widget stays the same.
-///
+/// 延迟加载组件封装
 class DeferredWidget extends StatefulWidget {
-  DeferredWidget(
-    this.libraryLoader,
-    this.createWidget, {
-    super.key,
-    Widget? placeholder,
-  }) : placeholder = placeholder ?? Container();
+  const DeferredWidget(
+      this.libraryLoader,
+      this.createWidget, {
+        super.key,
+        this.placeholder,
+      });
 
   final LibraryLoader libraryLoader;
   final DeferredWidgetBuilder createWidget;
-  final Widget placeholder;
+  final Widget? placeholder;
+
+  /// 已缓存的加载任务
   static final Map<LibraryLoader, Future<void>> _moduleLoaders = {};
+  /// 已成功加载的模块记录
   static final Set<LibraryLoader> _loadedModules = {};
 
+  /// 预加载某个模块
   static Future<void> preload(LibraryLoader loader) {
-    if (!_moduleLoaders.containsKey(loader)) {
-      _moduleLoaders[loader] = loader().then((dynamic _) {
-        _loadedModules.add(loader);
-      });
-    }
-    return _moduleLoaders[loader]!;
+    return _moduleLoaders.putIfAbsent(loader, () {
+      return loader().then((_) => _loadedModules.add(loader));
+    });
   }
 
   @override
@@ -43,22 +34,19 @@ class DeferredWidget extends StatefulWidget {
 }
 
 class _DeferredWidgetState extends State<DeferredWidget> {
-  _DeferredWidgetState();
-
   Widget? _loadedChild;
   DeferredWidgetBuilder? _loadedCreator;
 
   @override
   void initState() {
-    /// If module was already loaded immediately create widget instead of
-    /// waiting for future or zone turn.
+    super.initState();
     if (DeferredWidget._loadedModules.contains(widget.libraryLoader)) {
       _onLibraryLoaded();
     } else {
-      DeferredWidget.preload(widget.libraryLoader)
-          .then((dynamic _) => _onLibraryLoaded());
+      DeferredWidget.preload(widget.libraryLoader).then((_) {
+        if (mounted) _onLibraryLoaded();
+      });
     }
-    super.initState();
   }
 
   void _onLibraryLoaded() {
@@ -70,52 +58,64 @@ class _DeferredWidgetState extends State<DeferredWidget> {
 
   @override
   Widget build(BuildContext context) {
-    /// If closure to create widget changed, create new instance, otherwise
-    /// treat as const Widget.
+    // 如果构造器发生变化且已加载过，则重新创建实例
     if (_loadedCreator != widget.createWidget && _loadedCreator != null) {
       _loadedCreator = widget.createWidget;
       _loadedChild = _loadedCreator!();
     }
-    return _loadedChild ?? widget.placeholder;
+    return _loadedChild ?? widget.placeholder ?? const DeferredLoadingPlaceholder();
   }
 }
 
-/// Displays a progress indicator and text description explaining that
-/// the widget is a deferred component and is currently being installed.
+/// 优化后的加载占位符 (适配 Material 3)
 class DeferredLoadingPlaceholder extends StatelessWidget {
   const DeferredLoadingPlaceholder({
     super.key,
-    this.name = 'This widget',
+    this.name = 'Module',
   });
 
   final String name;
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Center(
       child: Container(
+        padding: const EdgeInsets.all(24),
+        constraints: const BoxConstraints(maxWidth: 280),
         decoration: BoxDecoration(
-            color: Colors.grey[700],
-            border: Border.all(
-              width: 20,
-              color: Colors.grey[700]!,
-            ),
-            borderRadius: const BorderRadius.all(Radius.circular(10))),
-        width: 250,
+          color: colorScheme.surfaceContainerHighest.withValues(alpha:0.5),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: colorScheme.outlineVariant),
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text('$name is installing.',
-                style: Theme.of(context).textTheme.headlineMedium),
-            Container(height: 10),
+          children: [
+            SizedBox(
+              width: 40,
+              height: 40,
+              child: CircularProgressIndicator(
+                strokeWidth: 3,
+                color: theme.primaryColor,
+              ),
+            ),
+            const SizedBox(height: 20),
             Text(
-                '$name is a deferred component which are downloaded and installed at runtime.',
-                style: Theme.of(context).textTheme.bodyLarge),
-            Container(height: 20),
-             Center(child: CircularProgressIndicator(
-               color: context.theme.primaryColor
-            )),
+              'Installing $name...',
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'This module is being downloaded and installed at runtime.',
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
           ],
         ),
       ),

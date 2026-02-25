@@ -1,53 +1,41 @@
 import 'package:flutter/material.dart';
 
-class AutoHideByKeyboard extends StatefulWidget {
+/// 当键盘弹出时自动隐藏子组件
+class AutoHideByKeyboard extends StatelessWidget {
   final Widget child;
-  final BuildContext parentContext;
 
-  const AutoHideByKeyboard(
-      {Key? key, required this.child, required this.parentContext})
-      : super(key: key);
+  /// 动画持续时间
+  final Duration duration;
 
-  @override
-  State<AutoHideByKeyboard> createState() => _AutoHideByKeyboardState();
-}
-
-class _AutoHideByKeyboardState extends State<AutoHideByKeyboard>
-    with WidgetsBindingObserver {
-  bool isShow = false;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  @override
-  void didChangeMetrics() {
-    super.didChangeMetrics();
-    if (context.mounted) {
-      final isShowNew =
-          MediaQuery.of(widget.parentContext).viewInsets.bottom > 0;
-      if (isShow != isShowNew) {
-        setState(() {
-          isShow = isShowNew;
-          // 'isShow2=$isShow'.log();
-        });
-      }
-    }
-  }
+  const AutoHideByKeyboard({
+    super.key,
+    required this.child,
+    this.duration = const Duration(milliseconds: 200),
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Visibility(
-      visible: !isShow,
-      child: widget.child,
+    // 1. 获取键盘底部高度 (viewInsets.bottom)
+    // 使用 viewInsetsOf 是 Flutter 3.10+ 的性能优化写法
+    final keyboardHeight = MediaQuery.viewInsetsOf(context).bottom;
+
+    // 2. 判断键盘是否开启
+    final bool isKeyboardVisible = keyboardHeight > 0;
+
+    // 3. 使用动画切换状态，比直接用 Visibility 体验更好
+    return AnimatedOpacity(
+      duration: duration,
+      opacity: isKeyboardVisible ? 0.0 : 1.0,
+      curve: Curves.easeOut,
+      child: AnimatedContainer(
+        duration: duration,
+        // 如果隐藏了，让它不占用任何空间
+        height: isKeyboardVisible ? 0 : null,
+        child: IgnorePointer(
+          ignoring: isKeyboardVisible,
+          child: child,
+        ),
+      ),
     );
   }
 }

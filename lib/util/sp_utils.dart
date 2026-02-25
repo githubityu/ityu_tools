@@ -1,176 +1,100 @@
-import 'dart:async';
 import 'dart:convert';
-
 import 'package:shared_preferences/shared_preferences.dart';
 
-/**
- * @Author: Sky24n
- * @GitHub: https://github.com/Sky24n
- * @Email: sky24no@gmail.com
- * @Date: 2018/9/8
- * @Description: Sp Util.
- */
-
-/// SharedPreferences Util.
 class SpUtil {
-  static SpUtil? _singleton;
-  static SharedPreferences? _prefs;
-
-  static Future<SpUtil?> getInstance() async {
-    if (_singleton == null) {
-      // keep local instance till it is fully initialized.
-      // 保持本地实例直到完全初始化。
-      var singleton = SpUtil._();
-      await singleton._init();
-      _singleton = singleton;
-    }
-    return _singleton;
-  }
-
   SpUtil._();
 
-  Future _init() async {
+  static late SharedPreferences _prefs;
+
+  /// 初始化 SharedPreferences，建议在 main.dart 中调用：
+  /// await SpUtil.init();
+  static Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
   }
 
-  /// put object.
-  static Future<bool>? putObject(String key, Object value) {
-    return _prefs?.setString(key, json.encode(value));
-  }
+  // --- 基础类型读取 (同步) ---
 
-  /// get obj.
-  static T? getObj<T>(String key, T Function(Map v) f, {T? defValue}) {
-    Map? map = getObject(key);
-    return map == null ? defValue : f(map);
-  }
-
-  /// get object.
-  static Map? getObject(String key) {
-    String? data = _prefs?.getString(key);
-    return (data == null || data.isEmpty) ? null : json.decode(data);
-  }
-
-  /// put object list.
-  static Future<bool>? putObjectList(String key, List<Object> list) {
-    List<String>? dataList = list.map((value) {
-      return json.encode(value);
-    }).toList();
-    return _prefs?.setStringList(key, dataList);
-  }
-
-  /// get obj list.
-  static List<T>? getObjList<T>(String key, T Function(Map v) f,
-      {List<T>? defValue = const []}) {
-    List<Map>? dataList = getObjectList(key);
-    List<T>? list = dataList?.map((value) {
-      return f(value);
-    }).toList();
-    return list ?? defValue;
-  }
-
-  /// get object list.
-  static List<Map>? getObjectList(String key) {
-    List<String>? dataLis = _prefs?.getStringList(key);
-    return dataLis?.map((value) {
-      Map dataMap = json.decode(value);
-      return dataMap;
-    }).toList();
-  }
-
-  /// get string.
   static String getString(String key, {String defValue = ''}) {
-    return _prefs?.getString(key) ?? defValue;
+    return _prefs.getString(key) ?? defValue;
   }
 
-  /// put string.
-  static Future<bool>? putString(String key, String value) {
-    return _prefs?.setString(key, value);
-  }
-
-  /// get bool.
-  static bool getBool(String key, {bool defValue = false}) {
-    return _prefs?.getBool(key) ?? defValue;
-  }
-
-
-  /// put bool.
-  static Future<bool>? putBool(String key, bool value) {
-    return _prefs?.setBool(key, value);
-  }
-
-  /// get int.
   static int getInt(String key, {int defValue = 0}) {
-    return _prefs?.getInt(key) ?? defValue;
+    return _prefs.getInt(key) ?? defValue;
   }
 
-  /// put int.
-  static Future<bool>? putInt(String key, int value) {
-    return _prefs?.setInt(key, value);
+  static bool getBool(String key, {bool defValue = false}) {
+    return _prefs.getBool(key) ?? defValue;
   }
 
-  /// get double.
   static double getDouble(String key, {double defValue = 0.0}) {
-    return _prefs?.getDouble(key) ?? defValue;
+    return _prefs.getDouble(key) ?? defValue;
   }
 
-  /// put double.
-  static Future<bool>? putDouble(String key, double value) {
-    return _prefs?.setDouble(key, value);
+  static List<String> getStringList(String key, {List<String> defValue = const []}) {
+    return _prefs.getStringList(key) ?? defValue;
   }
 
-  /// get string list.
-  static List<String> getStringList(String key,
-      {List<String> defValue = const []}) {
-    return _prefs?.getStringList(key) ?? defValue;
+  // --- 基础类型存储 (异步) ---
+
+  static Future<bool> putString(String key, String value) => _prefs.setString(key, value);
+
+  static Future<bool> putInt(String key, int value) => _prefs.setInt(key, value);
+
+  static Future<bool> putBool(String key, bool value) => _prefs.setBool(key, value);
+
+  static Future<bool> putDouble(String key, double value) => _prefs.setDouble(key, value);
+
+  static Future<bool> putStringList(String key, List<String> value) => _prefs.setStringList(key, value);
+
+  // --- 对象存储与读取 (JSON) ---
+
+  /// 存储对象
+  /// [value] 需要支持 jsonEncode (即拥有 toJson 方法或为基本 Map)
+  static Future<bool> putObject(String key, Object value) {
+    return _prefs.setString(key, json.encode(value));
   }
 
-  /// put string list.
-  static Future<bool>? putStringList(String key, List<String> value) {
-    return _prefs?.setStringList(key, value);
+  /// 获取对象
+  /// [decoder] 转换工厂，例如：(map) => User.fromJson(map)
+  static T? getObj<T>(String key, T Function(Map<String, dynamic> v) decoder) {
+    final String? jsonStr = _prefs.getString(key);
+    if (jsonStr == null || jsonStr.isEmpty) return null;
+    try {
+      final Map<String, dynamic> map = json.decode(jsonStr);
+      return decoder(map);
+    } catch (e) {
+      return null;
+    }
   }
 
-  /// get dynamic.
-  static dynamic getDynamic(String key, {Object? defValue}) {
-    return _prefs?.get(key) ?? defValue;
+  /// 存储对象列表
+  static Future<bool> putObjectList(String key, List<Object> list) {
+    final List<String> dataList = list.map((v) => json.encode(v)).toList();
+    return _prefs.setStringList(key, dataList);
   }
 
-  /// have key.
-  static bool? haveKey(String key) {
-    return _prefs?.getKeys().contains(key);
+  /// 获取对象列表
+  static List<T> getObjList<T>(String key, T Function(Map<String, dynamic> v) decoder, {List<T> defValue = const []}) {
+    final List<String>? dataList = _prefs.getStringList(key);
+    if (dataList == null) return defValue;
+    try {
+      return dataList.map((v) => decoder(json.decode(v))).toList();
+    } catch (e) {
+      return defValue;
+    }
   }
 
-  /// contains Key.
-  static bool? containsKey(String key) {
-    return _prefs?.containsKey(key);
-  }
+  // --- 通用操作 ---
 
-  /// get keys.
-  static Set<String>? getKeys() {
-    return _prefs?.getKeys();
-  }
+  /// 是否包含某个 key
+  static bool containsKey(String key) => _prefs.containsKey(key);
 
-  /// remove.
-  static Future<bool>? remove(String key) {
-    return _prefs?.remove(key);
-  }
+  /// 移除某个配置
+  static Future<bool> remove(String key) => _prefs.remove(key);
 
-  /// clear.
-  static Future<bool>? clear() {
-    return _prefs?.clear();
-  }
+  /// 清空所有配置
+  static Future<bool> clear() => _prefs.clear();
 
-  /// Fetches the latest values from the host platform.
-  static Future<void>? reload() {
-    return _prefs?.reload();
-  }
-
-  ///Sp is initialized.
-  static bool isInitialized() {
-    return _prefs != null;
-  }
-
-  /// get Sp.
-  static SharedPreferences? getSp() {
-    return _prefs;
-  }
+  /// 重新从磁盘加载（极少用到）
+  static Future<void> reload() => _prefs.reload();
 }

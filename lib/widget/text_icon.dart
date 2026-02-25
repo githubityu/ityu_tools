@@ -1,70 +1,69 @@
 import 'package:flutter/material.dart';
 
-/// create at 2022/1/4 15:24
-/// by githubityu
-/// describe：
+/// 统筹处理 图标 + 文字 的布局组件
+class TextIconX extends StatelessWidget {
+  const TextIconX({
+    super.key,
+    required this.icon,
+    this.text,
+    this.textWidget,
+    this.axis = Axis.horizontal,
+    this.isPre = true,
+    this.space = 8.0,
+    this.isExpand = false,
+    this.mainAxisAlignment = MainAxisAlignment.center,
+    this.crossAxisAlignment = CrossAxisAlignment.center,
+    this.mainAxisSize = MainAxisSize.min,
+    this.textStyle,
+  });
 
-///包含还是填充
-@immutable
-class TextIcon extends StatelessWidget {
-  const TextIcon(
-      {Key? key,
-      mainAxisSize,
-      this.axis = Axis.horizontal,
-      this.text,
-      this.textStyle,
-      this.isPre = true,
-      this.space = 8,
-      this.isExpand,
-      this.mainAxisAlignment = MainAxisAlignment.center,
-      this.crossAxisAlignment = CrossAxisAlignment.center,
-      required this.icon})
-      : mainAxisSize = mainAxisSize ?? MainAxisSize.min,
-        super(key: key);
-  final MainAxisSize mainAxisSize;
+  final Widget icon;
+  final String? text;
+
+  /// 如果想传复杂的 Text 组件（比如带 Span），可以使用这个
+  final Widget? textWidget;
+
   final Axis axis;
+  /// 图标是否在文字之前
   final bool isPre;
   final double space;
-  final String? text;
-  final bool? isExpand;
+  final bool isExpand;
   final MainAxisAlignment mainAxisAlignment;
   final CrossAxisAlignment crossAxisAlignment;
-  final Widget icon;
+  final MainAxisSize mainAxisSize;
   final TextStyle? textStyle;
 
   @override
   Widget build(BuildContext context) {
+    // 1. 构建文字组件
+    Widget label = textWidget ?? Text(
+      text ?? '',
+      style: textStyle,
+    );
+
+    // 2. 如果需要扩展，包装一层 Expanded
+    if (isExpand) {
+      label = Expanded(child: label);
+    }
+
+    // 3. 确定排列顺序
+    final List<Widget> children = isPre
+        ? [icon, _buildSpace(), label]
+        : [label, _buildSpace(), icon];
+
     return Flex(
-      mainAxisAlignment: mainAxisAlignment,
-      mainAxisSize: mainAxisSize,
-      crossAxisAlignment: crossAxisAlignment,
       direction: axis,
-      children: _buildChildren(),
+      mainAxisAlignment: mainAxisAlignment,
+      crossAxisAlignment: crossAxisAlignment,
+      mainAxisSize: mainAxisSize,
+      children: children,
     );
   }
 
-  List<Widget> _buildChildren() {
-    final widgets = <Widget>[];
-    widgets.add(icon!);
-    Widget textChild = Padding(
-      padding: axis == Axis.horizontal
-          ? EdgeInsets.only(
-              left: (isPre ? space : 0), right: (isPre ? 0 : space))
-          : EdgeInsets.only(
-              top: (isPre ? space : 0), bottom: (isPre ? 0 : space)),
-      child: Text(
-        text ?? '',
-        textAlign: TextAlign.start,
-        style: textStyle,
-      ),
-    );
-    if (isExpand == true) {
-      textChild = Expanded(child: textChild);
-    }
-    widgets.add(textChild);
-    if (!isPre) {
-      return widgets.reversed.toList();
-    }
-    return widgets;
+  /// 快速构建间距
+  Widget _buildSpace() {
+    return axis == Axis.horizontal
+        ? SizedBox(width: space)
+        : SizedBox(height: space);
   }
 }

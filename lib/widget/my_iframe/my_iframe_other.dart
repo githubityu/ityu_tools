@@ -48,7 +48,7 @@ class _MyIFrameState extends State<MyIFrame> {
             controller
                 .runJavaScriptReturningResult('document.body.scrollHeight')
                 .then((value) {
-              value.log('height');
+              value.logD();
               widget.heightFunc?.call(double.parse('$value'), controller);
             });
           },

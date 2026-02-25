@@ -1,11 +1,19 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/cupertino.dart';
 
-extension AsyncSnapshotExt on AsyncSnapshot {
-  bool get isNothing => connectionState == ConnectionState.none;
+extension AsyncSnapshotExt<T> on AsyncSnapshot<T> {
+  /// 正在加载状态（等待中或活跃中且无数据）
+  bool get isLoading =>
+      connectionState == ConnectionState.waiting ||
+          connectionState == ConnectionState.active;
 
-  bool get isActive => connectionState == ConnectionState.active;
+  /// 加载完成且拥有数据
+  bool get isSuccess =>
+      connectionState == ConnectionState.done && hasData && !hasError;
 
-  bool get isDone => connectionState == ConnectionState.done;
+  /// 加载完成但出错了
+  bool get isFailure =>
+      connectionState == ConnectionState.done && hasError;
 
-  bool get isWaiting => connectionState == ConnectionState.waiting;
+  /// 快捷获取错误信息字符串
+  String get errorString => error?.toString() ?? 'Unknown Error';
 }

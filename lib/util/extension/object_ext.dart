@@ -72,9 +72,37 @@ extension Unwrap<T> on Future<T?> {
 }
 
 extension SafeSetValue<T> on ValueNotifier<T?> {
-  safeSetValue(T newValue) {
+  void safeSetValue(T newValue) {
     if (value != newValue) {
       value = newValue;
     }
   }
 }
+
+
+extension ObjectSafetyExt on Object? {
+  /// 对应原 getSafeLength
+  int get safeLength {
+    final dynamic val = this;
+    if (val == null) return 0;
+    try {
+      return val.length;
+    } catch (_) {
+      return 0;
+    }
+  }
+
+  /// 对应原 getStringForDefault
+  String toSafeString({String defaultStr = ""}) => this?.toString() ?? defaultStr;
+}
+
+
+extension StringFormatExt on String {
+  /// 移除末尾无意义的 0 和点
+  String get trimZeroAndDot {
+    if (!contains('.')) return this;
+    return replaceAll(RegExp(r'0+?$'), '').replaceAll(RegExp(r'[.]$'), '');
+  }
+}
+
+

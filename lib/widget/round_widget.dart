@@ -1,97 +1,125 @@
 import 'package:flutter/material.dart';
-import 'package:ityu_tools/exports.dart';
+
+import 'cache_image.dart';
 
 class RoundWidget extends StatelessWidget {
   const RoundWidget({
-    Key? key,
-    this.radius = 8,
+    super.key,
+    this.radius = 8.0,
     this.child,
     this.color,
     this.margin,
     this.elevation = 0,
-  }) : super(key: key);
+    this.padding = EdgeInsets.zero,
+    this.onTap, // 增加点击支持
+  });
+
   final double radius;
   final Widget? child;
   final Color? color;
   final double elevation;
   final EdgeInsetsGeometry? margin;
+  final EdgeInsetsGeometry padding;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    // 自动适配主题颜色，如果未传 color，则使用主题的 cardColor
+    final theme = Theme.of(context);
+    final bgColor = color ?? theme.cardColor;
+
+    Widget current = Card(
       margin: margin,
       elevation: elevation,
-      clipBehavior: Clip.antiAlias,
-      color: color ?? Colors.white,
-      surfaceTintColor: color ?? Colors.white,
-      shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius)),
-      child: child,
+      clipBehavior: Clip.antiAlias, // 确保子组件不会超出圆角
+      color: bgColor,
+      // 在 Material 3 中，surfaceTintColor 会导致颜色偏移，这里设为透明或匹配背景
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(radius),
+      ),
+      child: Padding(
+        padding: padding,
+        child: child,
+      ),
     );
+
+    // 如果有点击事件，包装一层 InkWell
+    if (onTap != null) {
+      return InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(radius),
+        child: current,
+      );
+    }
+
+    return current;
   }
 }
 
 class RoundImage extends StatelessWidget {
-  final BorderRadiusGeometry? borderRadius;
-  final String path;
-
   const RoundImage({
-    Key? key,
-    this.borderRadius,
+    super.key,
     required this.path,
-  }) : super(key: key);
+    this.radius = 8.0,
+    this.fit = BoxFit.cover,
+    this.width,
+    this.height,
+    this.borderRadius,
+  });
+
+  final String path;
+  final double radius;
+  final double? width;
+  final double? height;
+  final BoxFit fit;
+  final BorderRadius? borderRadius;
 
   @override
   Widget build(BuildContext context) {
     return CacheImage(
-        errorWidget: Container(
-          decoration: BoxDecoration(
-            color: Colors.grey.withOpacity(0.3),
-            borderRadius: BorderRadius.circular(5),
-          ),
-        ),
-        placeholder: Container(
-          decoration: BoxDecoration(
-            color: Colors.grey.withOpacity(0.3),
-            borderRadius: BorderRadius.circular(5),
-          ),
-        ),
-        path: path,
-        borderRadius: borderRadius ?? BorderRadius.circular(5));
+      path: path,
+      width: width,
+      height: height,
+      fit: fit,
+      // 直接复用 CacheImage 已经做好的圆角逻辑
+      radius: radius,
+      borderRadius: borderRadius,
+    );
   }
 }
 
 class CircleImage extends StatelessWidget {
-  final double radius;
-  final String? path;
-
   const CircleImage({
-    Key? key,
-    required this.radius,
+    super.key,
     required this.path,
-  }) : super(key: key);
+    required this.size, // 使用 size 替代原来的 radius*2 更直观
+    this.fit = BoxFit.cover,
+  });
+
+  final String? path;
+  final double size;
+  final BoxFit fit;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: radius * 2,
-      height: radius * 2,
-      child: CacheImage(
-          placeholder: CircleAvatar(
-            backgroundColor: Colors.grey.withOpacity(0.3),
-            radius: radius,
-          ),
-          errorWidget: CircleAvatar(
-            backgroundColor: Colors.grey.withOpacity(0.3),
-            radius: radius,
-            child: Icon(
-              Icons.person,
-              color: context.colorScheme.primary,
-              size: radius * 1.5,
-            ),
-          ),
-          path: path,
-          isCircle: true),
+    final theme = Theme.of(context);
+
+    return CacheImage(
+      path: path,
+      width: size,
+      height: size,
+      fit: fit,
+      isCircle: true,
+      // 错误图显示默认占位图标
+      errorWidget: Container(
+        color: theme.colorScheme.surfaceContainerHighest,
+        child: Icon(
+          Icons.person,
+          color: theme.colorScheme.primary,
+          size: size * 0.6,
+        ),
+      ),
     );
   }
 }

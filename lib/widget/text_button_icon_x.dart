@@ -1,120 +1,156 @@
 import 'package:flutter/material.dart';
 
-class TextButtonWithIconX extends TextButton {
-  TextButtonWithIconX({
+/// 统筹处理按钮内部的 [图标 + 间距 + 文字]
+class ButtonContentX extends StatelessWidget {
+  const ButtonContentX({
     super.key,
-    required super.onPressed,
-    super.onLongPress,
-    super.onHover,
-    super.onFocusChange,
-    super.style,
-    super.focusNode,
-    bool? autofocus,
-    Clip? clipBehavior,
-    Axis? direction,
-    MainAxisSize? mainAxisSize,
-    bool? isPre,
-    double? gap,
-    required Widget icon,
-    Widget? label,
-  }) : super(
-          autofocus: autofocus ?? false,
-          clipBehavior: clipBehavior ?? Clip.none,
-          child: _TextButtonWithIconChild(
-              icon: icon,
-              mainAxisSize: mainAxisSize ?? MainAxisSize.min,
-              label: label,
-              direction: direction ?? Axis.horizontal,
-              isPre: isPre ?? true,
-              gap: gap ?? 8),
-        );
-
-  @override
-  ButtonStyle defaultStyleOf(BuildContext context) {
-    final EdgeInsetsGeometry scaledPadding = ButtonStyleButton.scaledPadding(
-      const EdgeInsets.all(8),
-      const EdgeInsets.symmetric(horizontal: 4),
-      const EdgeInsets.symmetric(horizontal: 4),
-      MediaQuery.maybeOf(context)?.textScaleFactor ?? 1,
-    );
-    return super.defaultStyleOf(context).copyWith(
-          padding: MaterialStatePropertyAll<EdgeInsetsGeometry>(scaledPadding),
-        );
-  }
-}
-
-class _TextButtonWithIconChild extends StatelessWidget {
-  const _TextButtonWithIconChild({
-    this.label,
-    required this.mainAxisSize,
     required this.icon,
-    required this.direction,
-    required this.isPre,
-    required this.gap,
+    this.label,
+    this.direction = Axis.horizontal,
+    this.isPre = true,
+    this.gap = 8.0,
+    this.mainAxisSize = MainAxisSize.min,
   });
 
+  final Widget icon;
   final Widget? label;
   final Axis direction;
-  final MainAxisSize mainAxisSize;
-  final Widget icon;
   final bool isPre;
   final double gap;
+  final MainAxisSize mainAxisSize;
 
   @override
   Widget build(BuildContext context) {
-    final gapWidget = direction == Axis.horizontal
+    final List<Widget> children = [];
+    final Widget spacer = direction == Axis.horizontal
         ? SizedBox(width: gap)
         : SizedBox(height: gap);
-    final labels = label == null
-        ? [icon]
-        : isPre
-            ? [icon, gapWidget, label!]
-            : [label!, SizedBox(width: gap), icon];
+
+    if (label == null) {
+      return icon;
+    }
+
+    if (isPre) {
+      children.addAll([icon, spacer, label!]);
+    } else {
+      children.addAll([label!, spacer, icon]);
+    }
+
     return Flex(
-      mainAxisSize: mainAxisSize,
       direction: direction,
-      children: labels,
+      mainAxisSize: mainAxisSize,
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: children,
     );
   }
 }
 
-class OutlinedButtonWithIconX extends OutlinedButton {
-  OutlinedButtonWithIconX({
+
+class TextButtonX extends StatelessWidget {
+  const TextButtonX({
     super.key,
-    required super.onPressed,
-    super.onLongPress,
-    super.style,
-    super.focusNode,
-    Axis? direction,
-    MainAxisSize? mainAxisSize,
-    bool? isPre,
-    double? gap,
-    bool? autofocus,
-    Clip? clipBehavior,
-    required Widget icon,
-    Widget? label,
-  }) : super(
-          autofocus: autofocus ?? false,
-          clipBehavior: clipBehavior ?? Clip.none,
-          child: _TextButtonWithIconChild(
-              icon: icon,
-              mainAxisSize: mainAxisSize ?? MainAxisSize.min,
-              label: label,
-              direction: direction ?? Axis.horizontal,
-              isPre: isPre ?? true,
-              gap: gap ?? 8),
-        );
+    required this.onPressed,
+    required this.icon,
+    this.label,
+    this.onLongPress,
+    this.style,
+    this.direction = Axis.horizontal,
+    this.isPre = true,
+    this.gap = 8.0,
+    this.mainAxisSize = MainAxisSize.min,
+  });
+
+  final VoidCallback? onPressed;
+  final VoidCallback? onLongPress;
+  final ButtonStyle? style;
+  final Widget icon;
+  final Widget? label;
+  final Axis direction;
+  final bool isPre;
+  final double gap;
+  final MainAxisSize mainAxisSize;
 
   @override
-  ButtonStyle defaultStyleOf(BuildContext context) {
-    final EdgeInsetsGeometry scaledPadding = ButtonStyleButton.scaledPadding(
-      const EdgeInsets.all(8),
-      const EdgeInsets.symmetric(horizontal: 4),
-      const EdgeInsets.symmetric(horizontal: 4),
-      MediaQuery.maybeOf(context)?.textScaleFactor ?? 1,
+  Widget build(BuildContext context) {
+    // 处理 M3 时代的文本缩放适配
+    final double textScaleFactor = MediaQuery.textScalerOf(context).scale(1.0);
+
+    // 这里的 padding 计算逻辑可以根据业务需求简化
+    final ButtonStyle defaultStyle = TextButton.styleFrom(
+      padding: EdgeInsets.symmetric(
+        horizontal: 8 * textScaleFactor,
+        vertical: 4 * textScaleFactor,
+      ),
     );
-    return super.defaultStyleOf(context).copyWith(
-          padding: MaterialStatePropertyAll<EdgeInsetsGeometry>(scaledPadding),
-        );
+
+    return TextButton(
+      onPressed: onPressed,
+      onLongPress: onLongPress,
+      style: defaultStyle.merge(style),
+      child: ButtonContentX(
+        icon: icon,
+        label: label,
+        direction: direction,
+        isPre: isPre,
+        gap: gap,
+        mainAxisSize: mainAxisSize,
+      ),
+    );
+  }
+}
+
+/// 同理可快速实现 OutlinedButtonX
+class OutlinedButtonX extends StatelessWidget {
+  const OutlinedButtonX({
+    super.key,
+    required this.onPressed,
+    required this.icon,
+    this.label,
+    this.onLongPress,
+    this.style,
+    this.direction = Axis.horizontal,
+    this.isPre = true,
+    this.gap = 8.0,
+    this.mainAxisSize = MainAxisSize.min,
+  });
+
+  final VoidCallback? onPressed;
+  final VoidCallback? onLongPress;
+  final ButtonStyle? style;
+  final Widget icon;
+  final Widget? label;
+  final Axis direction;
+  final bool isPre;
+  final double gap;
+  final MainAxisSize mainAxisSize;
+
+  @override
+  Widget build(BuildContext context) {
+    // 适配 M3 的文本缩放
+    final double textScaleFactor = MediaQuery.textScalerOf(context).scale(1.0);
+
+    // 设置 OutlinedButton 的默认间距（通常比 TextButton 略大一点）
+    final ButtonStyle defaultStyle = OutlinedButton.styleFrom(
+      padding: EdgeInsets.symmetric(
+        horizontal: 12 * textScaleFactor,
+        vertical: 8 * textScaleFactor,
+      ),
+    );
+
+    return OutlinedButton(
+      onPressed: onPressed,
+      onLongPress: onLongPress,
+      // 合并用户传入的自定义样式
+      style: defaultStyle.merge(style),
+      child: ButtonContentX(
+        icon: icon,
+        label: label,
+        direction: direction,
+        isPre: isPre,
+        gap: gap,
+        mainAxisSize: mainAxisSize,
+      ),
+    );
   }
 }

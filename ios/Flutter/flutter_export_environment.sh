@@ -1,9 +1,9 @@
 #!/bin/sh
 # This is a generated file; do not edit or check into version control.
-export "FLUTTER_ROOT=C:\Users\longy\fvm\versions\beta"
-export "FLUTTER_APPLICATION_PATH=D:\apistudy\ityu_tools-master"
+export "FLUTTER_ROOT=/Users/mac/fvm/versions/3.41.2"
+export "FLUTTER_APPLICATION_PATH=/Users/mac/AndroidStudioProjects/ityu_tools"
 export "COCOAPODS_PARALLEL_CODE_SIGN=true"
-export "FLUTTER_TARGET=lib\main.dart"
+export "FLUTTER_TARGET=lib/main.dart"
 export "FLUTTER_BUILD_DIR=build"
 export "FLUTTER_BUILD_NAME=0.0.1"
 export "FLUTTER_BUILD_NUMBER=0.0.1"

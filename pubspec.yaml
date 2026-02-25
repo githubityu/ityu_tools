@@ -12,24 +12,24 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.8
   intl: any
-  dio: ^5.8.0+1
-  logger: ^2.5.0
+  dio: ^5.9.1
+  logger: ^2.6.2
   #加载图片
   cached_network_image: ^3.4.1
   #权限管理
-  permission_handler: ^12.0.0+1
+  permission_handler: ^12.0.1
   #弹窗
-  flutter_smart_dialog: ^4.9.8+7
+  flutter_smart_dialog: ^4.9.8+9
   #工具
   quiver: ^3.2.2
-  url_launcher: ^6.3.1
-  webview_flutter: ^4.13.0
+  url_launcher: ^6.3.2
+  webview_flutter: ^4.13.1
   webview_flutter_web: ^0.2.3+4
-  shared_preferences: ^2.5.3
+  shared_preferences: ^2.5.4
 
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
 

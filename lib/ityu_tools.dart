@@ -1,4 +1,4 @@
-library ityu_tools;
+library;
 
 /// A Calculator.
 class Calculator {

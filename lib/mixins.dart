@@ -6,7 +6,7 @@ mixin class PageDataX {
   int page = 1;
   int limit = 5;
 
-  resetPageX() {
+  void resetPageX() {
     page = 1;
     limit = 5;
   }

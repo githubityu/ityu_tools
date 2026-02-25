@@ -1,90 +1,63 @@
-import 'package:ityu_tools/local/local_exports.dart';
-
-const int cPageStart = 1;
-const int cPageSize = 10;
-
-class ResponseBodyMt {
-  String? code;
-  String? msg;
-
-  // @JsonKey(includeFromJson: false, includeToJson: false)
-  dynamic data;
-
-  ResponseBodyMt({
-    String? code,
-    String? msg,
-    dynamic data,
-  });
-
-  ResponseBodyMt.fromJson(Map<String, dynamic> json1) {
-    code = '${json1['code']}';
-    msg = '${json1['msg']}';
-    data = json1['data'];
-  }
-
-  Map<String, dynamic> toJson() => <String, dynamic>{
-        'code': code,
-        'msg': msg,
-        'data': data,
-      };
-}
-
 class PageModel {
-  PageModel(
-      {this.page = cPageStart,
-      this.pageSize = cPageSize,
-      this.hasMore = true});
+  static const int defaultPageStart = 1;
+  static const int defaultPageSize = 10;
 
-  int page;
-  int pageSize;
-  bool? hasMore;
+  final int page;
+  final int pageSize;
+  final bool hasMore;
 
-  PageModel copyWith() {
-    return PageModel(pageSize: pageSize, page: page);
-  }
-
-  PageModel resetPage({int oldPage = cPageStart}) {
-    page = oldPage;
-    return this;
-  }
-
-  @override
-  String toString() {
-    return 'PageModel{page: $page, pageSize: $pageSize,  hasMore: $hasMore}';
-  }
-}
-
-class HasMoreListData<T> {
-  HasMoreListData(this.list, {this.hasMore});
-
-  List<T>? list;
-  bool? hasMore;
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['list'] = list;
-    data['has_more'] = hasMore;
-    return data;
-  }
-}
-
-class ResponseBodyRpc {
-  String? jsonrpc;
-  dynamic result;
-  dynamic error;
-
-  ResponseBodyRpc({
-    String? jsonrpc,
-    dynamic result,
-    dynamic error,
+  const PageModel({
+    this.page = defaultPageStart,
+    this.pageSize = defaultPageSize,
+    this.hasMore = true,
   });
 
-  ResponseBodyRpc.fromJson(Map<String, Object?> json) {
-    jsonrpc = '${json['jsonrpc']}';
-    result = json['result'];
-    error = json['error'];
+  /// 标准的 copyWith 模式，方便更新状态
+  PageModel copyWith({
+    int? page,
+    int? pageSize,
+    bool? hasMore,
+  }) {
+    return PageModel(
+      page: page ?? this.page,
+      pageSize: pageSize ?? this.pageSize,
+      hasMore: hasMore ?? this.hasMore,
+    );
   }
 
+  /// 重置分页到第一页
+  PageModel reset() => copyWith(page: defaultPageStart, hasMore: true);
+
+  /// 进入下一页
+  PageModel next() => copyWith(page: page + 1);
+
   @override
-  List<Object?> get props => [result, jsonrpc, error];
+  String toString() => 'PageModel(page: $page, pageSize: $pageSize, hasMore: $hasMore)';
+}
+
+
+class PagedList<T> {
+  final List<T> list;
+  final bool hasMore;
+
+  const PagedList({
+    this.list = const [],
+    this.hasMore = false,
+  });
+
+  factory PagedList.fromJson(
+      Map<String, dynamic> json,
+      T Function(Object? json) fromJsonT,
+      ) {
+    final items = json['list'] as List<dynamic>? ?? [];
+    return PagedList<T>(
+      list: items.map((e) => fromJsonT(e)).toList(),
+      hasMore: json['has_more'] as bool? ?? false,
+    );
+  }
+
+  Map<String, dynamic> toJson(Object? Function(T value) toJsonT) => {
+    'list': list.map((e) => toJsonT(e)).toList(),
+    'has_more': hasMore,
+  };
 }

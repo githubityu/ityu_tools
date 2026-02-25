@@ -1,31 +1,21 @@
-// Copyright 2022 The FlutterCandies author. All rights reserved.
-// Use of this source code is governed by a MIT license that can be found in the
-// LICENSE file.
-
 import 'package:flutter/material.dart';
 
-/// A lazy-[IndexedStack] written by [Alex Li](https://github.com/AlexV525) 💙.
-/// it lazily build children only when they are first activated.
-///
-/// The _lazily build_ here indicates the processes of `Widget`s inflating
-/// `Element`s are lazy.
-///
-/// See also:
-/// https://github.com/AlexV525/dartpad_workshops/tree/main/implement_lazy_indexed_stack
+/// 懒加载 IndexedStack
+/// 只有在索引被激活时才初始化对应的 Widget
 class LazyIndexedStack extends StatefulWidget {
   const LazyIndexedStack({
-    Key? key,
+    super.key,
     this.alignment = AlignmentDirectional.topStart,
     this.textDirection,
     this.sizing = StackFit.loose,
     this.index = 0,
     this.children = const <Widget>[],
-  }) : super(key: key);
+  });
 
   final AlignmentGeometry alignment;
   final TextDirection? textDirection;
   final StackFit sizing;
-  final int? index;
+  final int index; // 修改为非可选 int，更符合逻辑
   final List<Widget> children;
 
   @override
@@ -33,41 +23,46 @@ class LazyIndexedStack extends StatefulWidget {
 }
 
 class _LazyIndexedStackState extends State<LazyIndexedStack> {
-  late final List<bool> _activatedList = List<bool>.generate(
-    widget.children.length,
-    (int i) => i == widget.index,
-  );
+  /// 用于记录哪些页面已经被初始化
+  late List<bool> _activatedList;
+
+  @override
+  void initState() {
+    super.initState();
+    // 初始化激活状态列表
+    _activatedList = List<bool>.generate(
+      widget.children.length,
+          (i) => i == widget.index,
+    );
+  }
 
   @override
   void didUpdateWidget(LazyIndexedStack oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Activate new index when it's changed between widgets update.
-    if (oldWidget.index != widget.index) {
-      _activateIndex(widget.index);
+
+    // 1. 处理子组件数量变化的情况 (关键优化)
+    if (widget.children.length != _activatedList.length) {
+      final newCount = widget.children.length;
+      final oldCount = _activatedList.length;
+      if (newCount > oldCount) {
+        // 如果增加了 Tab，补全激活列表
+        _activatedList.addAll(List.filled(newCount - oldCount, false));
+      } else {
+        // 如果减少了 Tab，截断列表
+        _activatedList = _activatedList.sublist(0, newCount);
+      }
     }
+
+    // 2. 激活当前选中的索引
+    _activateIndex(widget.index);
   }
 
-  void _activateIndex(int? index) {
-    if (index == null) {
-      return;
-    }
-    if (!_activatedList[index]) {
+  void _activateIndex(int index) {
+    if (index >= 0 && index < _activatedList.length && !_activatedList[index]) {
       setState(() {
         _activatedList[index] = true;
       });
     }
-  }
-
-  List<Widget> _buildChildren(BuildContext context) {
-    return List<Widget>.generate(
-      widget.children.length,
-      (int i) {
-        if (_activatedList[i]) {
-          return widget.children[i];
-        }
-        return const SizedBox.shrink();
-      },
-    );
   }
 
   @override
@@ -77,7 +72,11 @@ class _LazyIndexedStackState extends State<LazyIndexedStack> {
       textDirection: widget.textDirection,
       sizing: widget.sizing,
       index: widget.index,
-      children: _buildChildren(context),
+      // 使用高效的映射逻辑
+      children: [
+        for (int i = 0; i < widget.children.length; i++)
+          _activatedList[i] ? widget.children[i] : const SizedBox.shrink(),
+      ],
     );
   }
 }

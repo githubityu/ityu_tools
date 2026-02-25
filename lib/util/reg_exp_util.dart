@@ -1,54 +1,84 @@
-class RegExpUtil {
-  // 邮箱判断
-  static bool isEmail(String input) {
-    String regexEmail =
-        "^([a-z0-9A-Z]+[-|\\.]?)+[a-z0-9A-Z]@([a-z0-9A-Z]+(-[a-z0-9A-Z]+)?\\.)+[a-zA-Z]{2,}\$";
-    if (input.isEmpty) return false;
-    return RegExp(regexEmail).hasMatch(input);
-  }
+import 'package:flutter/foundation.dart';
 
-  // 纯数字
-  static const String DIGIT_REGEX = r'^\d+$';
+/// 正则表达式常量定义
+class RegexConstants {
+  const RegexConstants._();
 
-  // 含有数字
-  static const String CONTAIN_DIGIT_REGEX = ".*[0-9].*";
+  static const String email = r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$';
+  static const String digits = r'^\d+$';
+  static const String hasDigits = r'\d';
+  static const String letters = r'^[a-zA-Z]+$';
+  static const String hasLetters = r'[a-zA-Z]';
+  static const String hasLowercase = r'[a-z]';
+  static const String hasUppercase = r'[A-Z]';
+  static const String chinese = r'^[\u4e00-\u9fa5]+$';
+  static const String hasChinese = r'[\u4e00-\u9fa5]';
+  static const String alphanumeric = r'^[a-zA-Z0-9]+$';
+  static const String chineseAlphanumeric = r'^[a-zA-Z0-9\u4e00-\u9fa5]+$';
 
-  // 纯字母
-  static const String LETTER_REGEX = "[a-zA-Z]+";
+  // 手机号（简单校验 1 开头 11 位）
+  static const String mobile = r'^1\d{10}$';
+}
 
-  // 包含字母
-  static const String SMALL_CONTAIN_LETTER_REGEX = ".*[a-z].*";
+/// 预编译正则对象，提高性能
+class RegexPool {
+  RegexPool._();
 
-  // 包含字母
-  static const String BIG_CONTAIN_LETTER_REGEX = ".*[A-Z].*";
+  static final RegExp email = RegExp(RegexConstants.email);
+  static final RegExp digits = RegExp(RegexConstants.digits);
+  static final RegExp hasDigits = RegExp(RegexConstants.hasDigits);
+  static final RegExp letters = RegExp(RegexConstants.letters);
+  static final RegExp hasLetters = RegExp(RegexConstants.hasLetters);
+  static final RegExp hasLowercase = RegExp(RegexConstants.hasLowercase);
+  static final RegExp hasUppercase = RegExp(RegexConstants.hasUppercase);
+  static final RegExp chinese = RegExp(RegexConstants.chinese);
+  static final RegExp hasChinese = RegExp(RegexConstants.hasChinese);
+  static final RegExp alphanumeric = RegExp(RegexConstants.alphanumeric);
+  static final RegExp chineseAlphanumeric = RegExp(RegexConstants.chineseAlphanumeric);
+  static final RegExp mobile = RegExp(RegexConstants.mobile);
+}
 
-  // 包含字母
-  static const String CONTAIN_LETTER_REGEX = ".*[a-zA-Z].*";
+/// 字符串正则扩展 - 推荐用法： "123".isDigits
+extension StringRegexExt on String? {
 
-  // 纯中文
-  static const String CHINESE_REGEX = "[\u4e00-\u9fa5]";
+  bool _match(RegExp reg) => this == null ? false : reg.hasMatch(this!);
 
-  // 仅仅包含字母和数字
-  static const String LETTER_DIGIT_REGEX = "^[a-z0-9A-Z]+\$";
-  static const String CHINESE_LETTER_REGEX = "([\u4e00-\u9fa5]+|[a-zA-Z]+)";
-  static const String CHINESE_LETTER_DIGIT_REGEX =
-      "^[a-z0-9A-Z\u4e00-\u9fa5]+\$";
+  /// 是否是邮箱
+  bool get isEmail => _match(RegexPool.email);
 
-  // 纯数字
-  static bool isOnly(String input) {
-    if (input.isEmpty) return false;
-    return RegExp(DIGIT_REGEX).hasMatch(input);
-  }
+  /// 是否纯数字
+  bool get isDigits => _match(RegexPool.digits);
 
-  // 含有数字
-  static bool hasDigit(String input) {
-    if (input.isEmpty) return false;
-    return RegExp(CONTAIN_DIGIT_REGEX).hasMatch(input);
-  }
+  /// 是否包含数字
+  bool get hasDigits => _match(RegexPool.hasDigits);
 
-  // 是否包含中文
-  static bool isChinese(String input) {
-    if (input.isEmpty) return false;
-    return RegExp(CHINESE_REGEX).hasMatch(input);
-  }
+  /// 是否纯字母
+  bool get isLetters => _match(RegexPool.letters);
+
+  /// 是否包含字母
+  bool get hasLetters => _match(RegexPool.hasLetters);
+
+  /// 是否包含大写字母
+  bool get hasUppercase => _match(RegexPool.hasUppercase);
+
+  /// 是否包含小写字母
+  bool get hasLowercase => _match(RegexPool.hasLowercase);
+
+  /// 是否纯中文
+  bool get isChinese => _match(RegexPool.chinese);
+
+  /// 是否包含中文
+  bool get containsChinese => _match(RegexPool.hasChinese);
+
+  /// 是否仅包含字母和数字
+  bool get isAlphanumeric => _match(RegexPool.alphanumeric);
+
+  /// 是否仅包含中文字母和数字
+  bool get isChineseAlphanumeric => _match(RegexPool.chineseAlphanumeric);
+
+  /// 是否为 11 位手机号
+  bool get isMobile => _match(RegexPool.mobile);
+
+  /// 自定义正则校验
+  bool matches(String source) => this == null ? false : RegExp(source).hasMatch(this!);
 }
