@@ -34,8 +34,13 @@ class AppError implements Exception {
     if (exception is AppError) return exception;
 
     if (exception is DioException) {
+      // 💡 这一步非常重要：如果 DioException.error 本身就是 AppError，直接取出来
+      if (exception.error is AppError) {
+        return exception.error as AppError;
+      }
       return _handleDioException(exception);
     }
+
 
     if (exception is SocketException) {
       return AppError(

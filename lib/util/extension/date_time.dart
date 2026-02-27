@@ -1,7 +1,6 @@
 import 'package:intl/intl.dart';
 import 'package:ityu_tools/exports.dart';
 
-import 'log_extensions.dart';
 
 class TimeFormats {
   static const String yyyyMMddHHmm = 'yyyy-MM-dd HH:mm';
@@ -20,6 +19,7 @@ extension DateTimeExt on DateTime {
     return DateFormat(pattern).format(this);
   }
 
+
   /// 快捷格式化 yyyy-MM-dd
   String get toDateString => format(TimeFormats.yyyyMMdd);
 
@@ -30,6 +30,44 @@ extension DateTimeExt on DateTime {
   DateTime max(DateTime? other) {
     if (other == null) return this;
     return isAfter(other) ? this : other;
+  }
+  // 💡 优化 1：利用 Dart 原生特性获取当月天数（绝对不会出现闰年算错的问题）
+  // 原理：下个月的第 0 天，就是这个月的最后一天。
+  int get daysInMonth => DateTime(year, month + 1, 0).day;
+
+  // 💡 优化 2：统一收口到 addDays，且改为 getter 属性更符合 Dart 规范
+  DateTime get nextDay => addDays(1);
+
+  // 💡 优化 3：增加 isUtc 判断！这是极其关键的防坑点。
+  // 将时间清零至 00:00:00，网赚App“每日零点重置任务”全靠它。
+  DateTime get dateOnly => isUtc
+      ? DateTime.utc(year, month, day)
+      : DateTime(year, month, day);
+
+  // 兼容老代码的方法调用
+  DateTime removeTime() => dateOnly;
+
+  // 💡 优化 4：日期比较最稳妥的方法是直接对比 dateOnly，
+  // 避免 "10:00 isAfter 15:00" 这种由时分秒引起的临界点 Bug。
+  bool isSameDayOrAfter(DateTime other) => !dateOnly.isBefore(other.dateOnly);
+
+  bool isSameDayOrBefore(DateTime other) => !dateOnly.isAfter(other.dateOnly);
+
+  bool isSameDay(DateTime other) =>
+      year == other.year && month == other.month && day == other.day;
+
+  bool isSameMonth(DateTime other) =>
+      year == other.year && month == other.month;
+
+  // 💡 优化 5：安全增减天数，完美避开夏令时(DST) Bug，并保持 UTC 属性不丢失
+  DateTime addDays(int daysToAdd) {
+    return isUtc
+        ? DateTime.utc(
+        year, month, day + daysToAdd,
+        hour, minute, second, millisecond, microsecond)
+        : DateTime(
+        year, month, day + daysToAdd,
+        hour, minute, second, millisecond, microsecond);
   }
 
   /// 获取最小值
@@ -51,9 +89,7 @@ extension DateTimeExt on DateTime {
   int get minutePrecisionEpoch {
     return DateTime(year, month, day, hour, minute).secondsSinceEpoch;
   }
-  bool isSameDay(DateTime other) {
-    return year == other.year && month == other.month && day == other.day;
-  }
+
 
   /// 格式化为 hh:mm:ss
   static String formatDuration(Duration duration) {

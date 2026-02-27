@@ -25,7 +25,7 @@ class DialogUtils {
       return AlertDialog(
         title: title != null ? Text(title, style: const TextStyle(fontSize: 18)) : null,
         shape: RoundedRectangleBorder(borderRadius: _defaultRadius),
-        backgroundColor: theme.dialogBackgroundColor,
+        backgroundColor: theme.dialogTheme.backgroundColor,
         content: contentWidget ?? (content != null ? Text(content) : null),
         actions: [
           if (!isSingleBtn)
