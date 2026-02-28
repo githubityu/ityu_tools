@@ -1,121 +1,67 @@
 import 'dart:io';
+
 import 'package:dio/dio.dart';
 
-/// 业务常量建议放到专门的 Constants 类中
-const String httpNotVerified = '100002';
-
-/// 错误类型枚举
 enum AppErrorType {
-  app(-1, 'Business Error'),
-  network(-2, 'Network Error'),
-  socket(-3, 'Socket connection failed'),
-  timeout(-4, 'Connection timeout'),
-  cancel(-5, 'Request cancelled'),
-  unknown(-6, 'Unknown error');
-
-  final int code;
-  final String defaultMessage;
-  const AppErrorType(this.code, this.defaultMessage);
+  network,  // 网络连接问题
+  business, // 后端返回的业务错误 (code != 0)
+  auth,     // 登录失效 (401 或 code: -5)
+  cancel,   // 手动取消
+  unknown   // 其他
 }
 
 class AppError implements Exception {
   final String message;
-  final int errorCode;
-  final dynamic originalError;
+  final int code;
+  final AppErrorType type;
 
-  AppError({
-    required this.message,
-    required this.errorCode,
-    this.originalError,
-  });
+  AppError({required this.message, required this.code, required this.type});
 
-  /// 核心工厂方法：将各种异常转换为统一的 AppError
-  factory AppError.from(Object exception) {
-    if (exception is AppError) return exception;
+  /// 💡 唯一入口：将任何错误对象转换为统一的 AppError
+  factory AppError.from(Object e) {
+    if (e is AppError) return e;
 
-    if (exception is DioException) {
-      // 💡 这一步非常重要：如果 DioException.error 本身就是 AppError，直接取出来
-      if (exception.error is AppError) {
-        return exception.error as AppError;
-      }
-      return _handleDioException(exception);
+    if (e is DioException) {
+      if (e.error is AppError) return e.error as AppError;
+      return _handleDioException(e);
     }
 
+    if (e is SocketException) return AppError(message: "网络连接不可用", code: -3, type: AppErrorType.network);
 
-    if (exception is SocketException) {
-      return AppError(
-        message: AppErrorType.socket.defaultMessage,
-        errorCode: AppErrorType.socket.code,
-        originalError: exception,
-      );
-    }
-
-    return AppError(
-      message: exception.toString(),
-      errorCode: AppErrorType.unknown.code,
-      originalError: exception,
-    );
+    return AppError(message: e.toString(), code: -6, type: AppErrorType.unknown);
   }
 
-  /// 针对 Dio 异常的详细分类处理
   static AppError _handleDioException(DioException e) {
-    // 如果 error 本身已经是 AppError (例如在拦截器中抛出的)，直接返回
-    if (e.error is AppError) {
-      return e.error as AppError;
-    }
-
-    // 根据 DioExceptionType 进行分类
     switch (e.type) {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
-        return AppError(
-          message: 'Connection timed out',
-          errorCode: AppErrorType.timeout.code,
-          originalError: e,
-        );
-
-      case DioExceptionType.badResponse:
-      // 这里的 e.response?.statusCode 包含 404, 500 等
-        final statusCode = e.response?.statusCode ?? AppErrorType.app.code;
-        final statusMsg = e.response?.statusMessage ?? 'Server Error';
-        return AppError(
-          message: 'Server Error ($statusCode): $statusMsg',
-          errorCode: statusCode,
-          originalError: e,
-        );
+        return AppError(message: "网络请求超时", code: -4, type: AppErrorType.network);
 
       case DioExceptionType.cancel:
-        return AppError(
-          message: 'Request was cancelled',
-          errorCode: AppErrorType.cancel.code,
-          originalError: e,
-        );
+        return AppError(message: "请求已取消", code: -5, type: AppErrorType.cancel);
 
-      case DioExceptionType.connectionError:
+      case DioExceptionType.badResponse:
+        final status = e.response?.statusCode ?? 500;
         return AppError(
-          message: 'Network connection error',
-          errorCode: AppErrorType.network.code,
-          originalError: e,
+          message: _mapHttpStatusToMessage(status),
+          code: status,
+          type: (status == 401) ? AppErrorType.auth : AppErrorType.network,
         );
 
       default:
-      // 检查是否包裹了 SocketException
-        if (e.error is SocketException) {
-          return AppError(
-            message: 'No Internet Connection',
-            errorCode: AppErrorType.socket.code,
-            originalError: e.error,
-          );
-        }
-        return AppError(
-          message: 'Unexpected network error: ${e.type.name}',
-          errorCode: AppErrorType.unknown.code,
-          originalError: e,
-        );
+        return AppError(message: "网络异常，请稍后重试", code: -2, type: AppErrorType.network);
     }
   }
 
+  static String _mapHttpStatusToMessage(int status) {
+    if (status >= 500) return "服务器开小差了 ($status)";
+    if (status == 401) return "登录已过期，请重新登录";
+    if (status == 403) return "没有访问权限";
+    if (status == 404) return "接口不存在";
+    return "网络响应异常 ($status)";
+  }
+
   @override
-  String toString() => 'AppError(code: $errorCode, message: $message)';
+  String toString() => message;
 }
