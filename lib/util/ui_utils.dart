@@ -19,6 +19,20 @@ class UiUtils {
       ),
     );
   }
+  static void showErrorToast({
+    required String message,
+    required int code,
+    List<int> ignoreCodes = const [], // 默认不忽略任何错误码
+  }) {
+    // 💡 优化 3：提前判空（防御性编程），如果后端传了空消息，不弹空白 Toast 恶心用户
+    if (message.isEmpty) return;
+
+    // 如果当前的错误码，不在“需要忽略的列表”里，才弹窗
+    if (!ignoreCodes.contains(code)) {
+      showToast(message); // 调用你底层的 Toast 方法
+    }
+  }
+
 
   /// 获取组件位置和大小 (使用 Dart 3 Records)
   static ({Offset offset, Size size}) getWidgetInfo(BuildContext context) {

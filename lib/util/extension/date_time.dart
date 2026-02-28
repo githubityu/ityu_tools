@@ -1,7 +1,6 @@
 import 'package:intl/intl.dart';
 import 'package:ityu_tools/exports.dart';
 
-
 class TimeFormats {
   static const String yyyyMMddHHmm = 'yyyy-MM-dd HH:mm';
   static const String yyyyMMddHHmmss = 'yyyy-MM-dd HH:mm:ss';
@@ -19,6 +18,29 @@ extension DateTimeExt on DateTime {
     return DateFormat(pattern).format(this);
   }
 
+  DateTime mergeTimeString(String timeStr) {
+    try {
+      // 1. 提取 HH:mm 部分
+      final cleanTime = timeStr.split(' ').first;
+      final parts = cleanTime.split(':');
+
+      // 2. 解析时分
+      final hour = int.parse(parts[0]);
+      final minute = int.parse(parts[1]);
+
+      // 3. 返回新对象，并秒级清零（通常合并时间都需要秒级清零）
+      return copyWith(
+        hour: hour,
+        minute: minute,
+        second: 0,
+        millisecond: 0,
+        microsecond: 0,
+      );
+    } catch (e) {
+      // 解析失败返回原值
+      return this;
+    }
+  }
 
   /// 快捷格式化 yyyy-MM-dd
   String get toDateString => format(TimeFormats.yyyyMMdd);
@@ -31,6 +53,7 @@ extension DateTimeExt on DateTime {
     if (other == null) return this;
     return isAfter(other) ? this : other;
   }
+
   // 💡 优化 1：利用 Dart 原生特性获取当月天数（绝对不会出现闰年算错的问题）
   // 原理：下个月的第 0 天，就是这个月的最后一天。
   int get daysInMonth => DateTime(year, month + 1, 0).day;
@@ -40,9 +63,8 @@ extension DateTimeExt on DateTime {
 
   // 💡 优化 3：增加 isUtc 判断！这是极其关键的防坑点。
   // 将时间清零至 00:00:00，网赚App“每日零点重置任务”全靠它。
-  DateTime get dateOnly => isUtc
-      ? DateTime.utc(year, month, day)
-      : DateTime(year, month, day);
+  DateTime get dateOnly =>
+      isUtc ? DateTime.utc(year, month, day) : DateTime(year, month, day);
 
   // 兼容老代码的方法调用
   DateTime removeTime() => dateOnly;
@@ -62,12 +84,10 @@ extension DateTimeExt on DateTime {
   // 💡 优化 5：安全增减天数，完美避开夏令时(DST) Bug，并保持 UTC 属性不丢失
   DateTime addDays(int daysToAdd) {
     return isUtc
-        ? DateTime.utc(
-        year, month, day + daysToAdd,
-        hour, minute, second, millisecond, microsecond)
-        : DateTime(
-        year, month, day + daysToAdd,
-        hour, minute, second, millisecond, microsecond);
+        ? DateTime.utc(year, month, day + daysToAdd, hour, minute, second,
+            millisecond, microsecond)
+        : DateTime(year, month, day + daysToAdd, hour, minute, second,
+            millisecond, microsecond);
   }
 
   /// 获取最小值
@@ -90,7 +110,6 @@ extension DateTimeExt on DateTime {
     return DateTime(year, month, day, hour, minute).secondsSinceEpoch;
   }
 
-
   /// 格式化为 hh:mm:ss
   static String formatDuration(Duration duration) {
     String twoDigits(int n) => n.toString().padLeft(2, "0");
@@ -101,9 +120,6 @@ extension DateTimeExt on DateTime {
         ? "${duration.inDays}:$hours:$minutes:$seconds"
         : "$hours:$minutes:$seconds";
   }
-
-
-
 }
 
 extension StringTimeExtension on String? {
@@ -144,6 +160,7 @@ extension StringTimeExtension on String? {
     }
     return parse(pattern: pattern);
   }
+
   int getSecondsUntil({String? pattern}) {
     // 1. 空值检查 (替代原来的 isBlank)
     if (this == null || this!.isEmpty) return 0;
