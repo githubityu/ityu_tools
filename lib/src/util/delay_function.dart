@@ -21,6 +21,24 @@ class Debouncer {
   }
 }
 
+class Throttler {
+  bool _isBusy = false;
+
+  /// 节流执行：立即执行 action，并在执行期间（或指定时间内）拦截后续调用
+  void run(FutureOr<void> Function() action) async {
+    if (_isBusy) return;
+    _isBusy = true;
+
+    try {
+      await action(); // 执行任务
+    } finally {
+      // 任务完成后，可以加一个固定冷却时间，防止机械性连点
+      await Future.delayed(const Duration(milliseconds: 500));
+      _isBusy = false;
+    }
+  }
+}
+
 
 class CountDownTimer {
   StreamSubscription<int>? _subscription;

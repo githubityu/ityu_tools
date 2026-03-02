@@ -67,17 +67,21 @@ class AppLog {
 extension ObjectExt on Object? {
   /// 调试日志 - 自动带上类名
   void logD() {
-    final tag = this == null ? 'Null' : '${this.runtimeType}';
+    final tag = this == null ? 'Null' : '$runtimeType';
     AppLog.d('🏷️ [$tag] $this');
   }
 
   void logI() {
-    final tag = this == null ? 'Null' : '${this.runtimeType}';
+    final tag = this == null ? 'Null' : '$runtimeType';
     AppLog.i('🏷️ [$tag] $this');
   }
 
   void logE([dynamic error, StackTrace? stackTrace]) {
-    final tag = this == null ? 'Null' : '${this.runtimeType}';
+    final tag = this == null ? 'Null' : '$runtimeType';
     AppLog.e('🏷️ [$tag] $this', error, stackTrace);
+  }
+  void logW() {
+    final tag = this == null ? 'Null' : '$runtimeType';
+    AppLog.w('⚠️ [$tag] $this');
   }
 }

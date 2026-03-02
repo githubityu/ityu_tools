@@ -19,6 +19,7 @@ class UiUtils {
       ),
     );
   }
+
   static void showErrorToast({
     required String message,
     required int code,
@@ -32,7 +33,6 @@ class UiUtils {
       showToast(message); // 调用你底层的 Toast 方法
     }
   }
-
 
   /// 获取组件位置和大小 (使用 Dart 3 Records)
   static ({Offset offset, Size size}) getWidgetInfo(BuildContext context) {

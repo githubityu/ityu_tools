@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ityu_tools/exports.dart';
-
+import '../util/export_util.dart';
 ///
 /// use
 ///     final result = await showDialog(
@@ -20,8 +19,6 @@ import 'package:ityu_tools/exports.dart';
 ///
 ///
 
-import 'package:flutter/material.dart';
-import 'package:ityu_tools/exports.dart';
 
 /// 弹出窗组件，通常显示在点击目标的下方 建议使用下面
 /// SmartDialog.showAttach(

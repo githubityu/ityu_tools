@@ -2,8 +2,9 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
-import 'package:ityu_tools/util/ui_utils.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import 'export_util.dart';
 
 class ServiceUtils {
   /// 修复原代码中的同步读取 Bug

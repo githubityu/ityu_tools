@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:ityu_tools/exports.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import '../../util/export_util.dart';
 
 
 ///EagerGestureRecognizer 急切拿到事件，webview拿到事件

@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:ityu_tools/widget/scroll/refresh_nested_wrapper.dart';
 
+import '../export_widget.dart';
 import 'load_more_wrapper.dart';
 // 导入你之前封装的组件
-// import 'package:your_package/widget/scroll/refresh_nested_wrapper.dart';
-// import 'package:your_package/widget/scroll/load_more_wrapper.dart';
+
 
 class TabBarNestedPage extends StatefulWidget {
   const TabBarNestedPage({super.key});
