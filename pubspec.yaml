@@ -10,22 +10,22 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.8
+  cupertino_icons: ^1.0.9
   intl: any
-  dio: ^5.9.1
-  logger: ^2.6.2
+  dio: ^5.9.2
+  logger: ^2.7.0
   #加载图片
   cached_network_image: ^3.4.1
   #权限管理
   permission_handler: ^12.0.1
   #弹窗
-  flutter_smart_dialog: ^4.9.8+9
+  flutter_smart_dialog: ^5.1.0
   #工具
   quiver: ^3.2.2
   url_launcher: ^6.3.2
   webview_flutter: ^4.13.1
   webview_flutter_web: ^0.2.3+4
-  shared_preferences: ^2.5.4
+  shared_preferences: ^2.5.5
 
 
 dev_dependencies:

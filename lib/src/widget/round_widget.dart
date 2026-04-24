@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-
 import 'cache_image.dart';
 
+/// 带圆角的容器，支持点击水波纹、阴影、外边距
 class RoundWidget extends StatelessWidget {
   const RoundWidget({
     super.key,
@@ -11,7 +11,7 @@ class RoundWidget extends StatelessWidget {
     this.margin,
     this.elevation = 0,
     this.padding = EdgeInsets.zero,
-    this.onTap, // 增加点击支持
+    this.onTap,
   });
 
   final double radius;
@@ -24,39 +24,31 @@ class RoundWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 自动适配主题颜色，如果未传 color，则使用主题的 cardColor
     final theme = Theme.of(context);
     final bgColor = color ?? theme.cardColor;
 
-    Widget current = Card(
+    return Card(
       margin: margin,
       elevation: elevation,
-      clipBehavior: Clip.antiAlias, // 确保子组件不会超出圆角
+      clipBehavior: Clip.antiAlias, // 确保水波纹和内容都被切割
       color: bgColor,
-      // 在 Material 3 中，surfaceTintColor 会导致颜色偏移，这里设为透明或匹配背景
       surfaceTintColor: Colors.transparent,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(radius),
       ),
-      child: Padding(
-        padding: padding,
-        child: child,
+      child: InkWell(
+        // 🌟 核心：将 InkWell 放在 Card 内部，水波纹才会渲染在背景色之上
+        onTap: onTap,
+        child: Padding(
+          padding: padding,
+          child: child,
+        ),
       ),
     );
-
-    // 如果有点击事件，包装一层 InkWell
-    if (onTap != null) {
-      return InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(radius),
-        child: current,
-      );
-    }
-
-    return current;
   }
 }
 
+/// 圆角图片封装
 class RoundImage extends StatelessWidget {
   const RoundImage({
     super.key,
@@ -82,24 +74,26 @@ class RoundImage extends StatelessWidget {
       width: width,
       height: height,
       fit: fit,
-      // 直接复用 CacheImage 已经做好的圆角逻辑
       radius: radius,
       borderRadius: borderRadius,
     );
   }
 }
 
+/// 圆形图片封装 (常用于头像)
 class CircleImage extends StatelessWidget {
   const CircleImage({
     super.key,
     required this.path,
-    required this.size, // 使用 size 替代原来的 radius*2 更直观
+    required this.size,
     this.fit = BoxFit.cover,
+    this.errorIcon,
   });
 
   final String? path;
   final double size;
   final BoxFit fit;
+  final IconData? errorIcon;
 
   @override
   Widget build(BuildContext context) {
@@ -111,11 +105,11 @@ class CircleImage extends StatelessWidget {
       height: size,
       fit: fit,
       isCircle: true,
-      // 错误图显示默认占位图标
+      // 针对头像设计的错误占位
       errorWidget: Container(
-        color: theme.colorScheme.surfaceContainerHighest,
+        color: theme.colorScheme.surfaceVariant,
         child: Icon(
-          Icons.person,
+          errorIcon ?? Icons.person,
           color: theme.colorScheme.primary,
           size: size * 0.6,
         ),
