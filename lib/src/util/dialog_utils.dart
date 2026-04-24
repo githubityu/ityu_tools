@@ -1,63 +1,149 @@
-import 'dart:async';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
-class LoadingUtils {
-  const LoadingUtils._();
+class DialogUtils {
+  const DialogUtils._();
 
-  // 🌟 优化 1：引用计数锁，防止并发请求时互相干扰
-  static int _loadingCount = 0;
+  /// 基础配置：建议在工具包中提供一个全局配置项，或者通过 context 获取主题
+  static BorderRadius get _defaultRadius => BorderRadius.circular(12);
 
-  static void show([String? msg]) {
-    _loadingCount++;
-    // 只有第一个请求发起时，才真正呼出 UI 弹窗
-    if (_loadingCount == 1) {
-      SmartDialog.showLoading(msg: msg ?? '加载中...');
-    }
+  // --- 1. 提示类弹窗 (基于 SmartDialog) ---
+
+  static Future<bool?> showTipsDialog(
+      BuildContext context, {
+        String? title,
+        String? content,
+        Widget? contentWidget,
+        String confirmText = 'Confirm',
+        String cancelText = 'Cancel',
+        bool isSingleBtn = false,
+      }) async {
+    final theme = Theme.of(context);
+
+    return SmartDialog.show(builder: (_) {
+      return AlertDialog(
+        title: title != null ? Text(title, style: const TextStyle(fontSize: 18)) : null,
+        shape: RoundedRectangleBorder(borderRadius: _defaultRadius),
+        backgroundColor: theme.dialogBackgroundColor,
+        content: contentWidget ?? (content != null ? Text(content) : null),
+        actions: [
+          if (!isSingleBtn)
+            TextButton(
+              onPressed: () => SmartDialog.dismiss(result: false),
+              child: Text(cancelText, style: TextStyle(color: theme.hintColor)),
+            ),
+          TextButton(
+            onPressed: () => SmartDialog.dismiss(result: true),
+            child: Text(confirmText, style: TextStyle(fontWeight: FontWeight.bold, color: theme.primaryColor)),
+          ),
+        ],
+      );
+    });
   }
 
-  static void dismiss() {
-    if (_loadingCount > 0) {
-      _loadingCount--;
-    }
-    // 只有所有请求都结束时，才真正关闭 UI 弹窗
-    if (_loadingCount == 0) {
-      SmartDialog.dismiss(status: SmartStatus.loading); // 去掉 force: true
-    }
+  // --- 2. 列表选择器 (底部弹出) ---
+
+  /// 使用 Dart 3 的记录 (Record) 返回结果：(index, value)
+  static Future<(int, String)?> showBottomList(
+      BuildContext context, {
+        required List<String> options,
+        int initialItem = 0,
+        String title = 'Please Select',
+        double height = 280,
+      }) async {
+    int selectedIndex = initialItem;
+    final theme = Theme.of(context);
+
+    return showCupertinoModalPopup<(int, String)>(
+      context: context,
+      builder: (context) => Container(
+        height: height,
+        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        decoration: BoxDecoration(
+          color: theme.scaffoldBackgroundColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+        child: Column(
+          children: [
+            _buildActionHeader(
+              context,
+              onConfirm: () => Navigator.pop(context, (selectedIndex, options[selectedIndex])),
+            ),
+            Expanded(
+              child: CupertinoPicker(
+                scrollController: FixedExtentScrollController(initialItem: initialItem),
+                itemExtent: 42,
+                onSelectedItemChanged: (i) => selectedIndex = i,
+                children: options.map((e) => Center(child: Text(e, style: TextStyle(color: theme.textTheme.bodyLarge?.color)))).toList(),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
-  /// 包装一个 Future 任务，处理 Loading 的开启和关闭
-  static Future<T?> run<T>(Future<T> Function() task, {String? msg}) async {
-    // 🌟 优化 2：解决“闪屏”问题。记录开始时间
-    final startTime = DateTime.now();
+  // --- 3. 日期选择器 ---
 
-    show(msg);
-    try {
-      return await task();
-    } catch (e) {
-      rethrow;
-    } finally {
-      // 🌟 计算耗时，如果接口太快（< 300ms），强制等够 300ms 再关闭
-      // 保证 Loading 动画至少能流畅地转半圈，彻底消灭闪烁感
-      final duration = DateTime.now().difference(startTime);
-      if (duration.inMilliseconds < 300) {
-        await Future.delayed(Duration(milliseconds: 300 - duration.inMilliseconds));
-      }
-      dismiss();
-    }
+  static Future<DateTime?> showBottomDate(
+      BuildContext context, {
+        DateTime? initialDateTime,
+        DateTime? minimumDate,
+        DateTime? maximumDate,
+        CupertinoDatePickerMode mode = CupertinoDatePickerMode.date,
+      }) async {
+    DateTime tempDt = initialDateTime ?? DateTime.now();
+    final theme = Theme.of(context);
+
+    return showCupertinoModalPopup<DateTime>(
+      context: context,
+      builder: (context) => Container(
+        height: 300,
+        color: theme.scaffoldBackgroundColor,
+        child: Column(
+          children: [
+            _buildActionHeader(
+              context,
+              onConfirm: () => Navigator.pop(context, tempDt),
+            ),
+            Expanded(
+              child: CupertinoDatePicker(
+                mode: mode,
+                initialDateTime: tempDt,
+                minimumDate: minimumDate,
+                maximumDate: maximumDate,
+                onDateTimeChanged: (dt) => tempDt = dt,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
-  /// 万一出现异常导致计数器死锁，提供一个终极重置方法（可以在路由跳转时调用）
-  static void forceDismissAll() {
-    _loadingCount = 0;
-    SmartDialog.dismiss(status: SmartStatus.loading, force: true);
-  }
-}
+  // --- 辅助私有组件：抽取头部确定/取消栏 ---
 
-// 💡 建议：在 Riverpod 架构下，Mixin 其实用得很少。
-// 因为我们上一节已经写了 WidgetRefLoadingExt，大多数时候都在 UI 层直接调 ref.runLoadingTask
-// 纯业务类里直接调 LoadingUtils.run 即可，这个 Mixin 可以选择性保留或删除。
-mixin LoadingMixin {
-  Future<T?> runLoading<T>(Future<T> Function() task, {String? msg}) {
-    return LoadingUtils.run<T>(task, msg: msg);
+  static Widget _buildActionHeader(BuildContext context, {required VoidCallback onConfirm}) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: theme.dividerColor, width: 0.5)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          GestureDetector(
+            onTap: () => Navigator.pop(context),
+            child: Text('Cancel', style: TextStyle(color: theme.hintColor, fontSize: 16)),
+          ),
+          GestureDetector(
+            onTap: onConfirm,
+            child: Text('Confirm', style: TextStyle(color: theme.primaryColor, fontSize: 16, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
   }
 }
